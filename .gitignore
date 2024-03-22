@@ -1,4 +1,11 @@
+#BASES imagenet100, logs, and adversarial images
+BASES/imagenet1000/
+BASES/bb_w_logs/
+BASES/bb_w_adv_images/
+
+#Mac os
 .DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
