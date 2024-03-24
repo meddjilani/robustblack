@@ -86,7 +86,7 @@ model_names = [
     ]
 
 
-def load_model(model_name, device):
+def load_model_torchvision(model_name, device):
     """Load the model according to the idx in list model_names
     Args: 
         model_name (str): the name of model, chosen from the following list

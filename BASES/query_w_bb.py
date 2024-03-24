@@ -10,6 +10,7 @@ import argparse
 from pathlib import Path
 
 import torch
+from robustbench.utils import load_model
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -18,7 +19,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from class_names_imagenet import lab_dict as imagenet_names
-from utils_bases import load_imagenet_1000, load_model, get_adv_np, get_label_loss
+from utils_bases import load_imagenet_1000, load_model_torchvision, get_adv_np, get_label_loss
 
 
 def main():
@@ -63,10 +64,12 @@ def main():
     wb = []
     for model_name in surrogate_names[:n_wb]:
         print(f"load: {model_name}")
-        wb.append(load_model(model_name, device))
+        wb.append(load_model_torchvision(model_name, device))
 
     # load victim model
-    victim_model = load_model(args.victim, device)
+    victim_model = load_model(args.victim, dataset = 'imagenet', threat_model = 'Linf')
+    victim_model.to(device)
+
 
     # create exp folders
     exp = f'victim_{args.victim}_{n_wb}wb_{bound}_{eps}_iters{n_iters}_x{args.x}_loss_{loss_name}_lr{lr_w}_iterw{args.iterw}_fuse_{fuse}_v2'
