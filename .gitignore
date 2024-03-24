@@ -1,3 +1,6 @@
+#Imagenet robust model
+models/
+
 #BASES imagenet100, logs, and adversarial images
 BASES/imagenet1000/
 BASES/bb_w_logs/
