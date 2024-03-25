@@ -1,4 +1,8 @@
-#Imagenet robust model
+#TREMBA dataset G_weight
+dataset
+G_weight
+
+#Imagenet robust models
 models/
 
 #BASES imagenet100, logs, and adversarial images
