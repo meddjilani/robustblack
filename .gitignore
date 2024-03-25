@@ -6,7 +6,7 @@ dataset
 G_weight
 
 #Imagenet robust models
-models/
+imagenet/
 
 #BASES imagenet100, logs, and adversarial images
 BASES/imagenet1000/
