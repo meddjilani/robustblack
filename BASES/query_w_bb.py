@@ -31,7 +31,7 @@ def main():
     parser.add_argument("--iters", type=int, default=10, help="number of inner iterations: 5,6,10,20...")
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument("--root", nargs="?", default='result', help="the folder name of result")
-    
+
     parser.add_argument("--fuse", nargs="?", default='loss', help="the fuse method. loss or logit")
     parser.add_argument("--loss_name", nargs="?", default='cw', help="the name of the loss")
     parser.add_argument("--x", type=int, default=3, help="times alpha by x")
@@ -40,7 +40,7 @@ def main():
     parser.add_argument("--n_im", type=int, default=1000, help="number of images")
     parser.add_argument("-untargeted", action='store_true', help="run untargeted attack")
     args = parser.parse_args()
-    
+
 
     n_wb = args.n_wb
     bound = args.bound
@@ -51,10 +51,10 @@ def main():
     loss_name = args.loss_name
     lr_w = float(args.lr)
     device = torch.device(args.gpu)
-    
+
     # load images
     img_paths, gt_labels, tgt_labels = load_imagenet_1000(dataset_root = 'imagenet1000')
-    
+
     # load surrogate models
     surrogate_names = ['vgg16_bn', 'resnet18', 'squeezenet1_1', 'googlenet', \
                 'mnasnet1_0', 'densenet161', 'efficientnet_b0', \
@@ -97,7 +97,7 @@ def main():
         if args.untargeted:
             tgt_label = gt_label
             exp_name = f"idx{im_idx}_f{gt_label}_untargeted"
-        
+
         # start from equal weights
         w_np = np.array([1 for _ in range(len(wb))]) / len(wb)
         adv_np, losses = get_adv_np(im_np, tgt_label, w_np, wb, bound, eps, n_iters, alpha, fuse=fuse, untargeted=args.untargeted, loss_name=loss_name, adv_init=None)
@@ -121,10 +121,10 @@ def main():
             query_list.append(n_query)
             w_list.append(w_np.tolist())
             loss_bb_list.append(loss)
-        else: 
+        else:
             idx_w = 0         # idx of wb in W
             last_idx = 0    # if no changes after one round, reduce the learning rate
-            
+
             while n_query < args.iterw:
                 w_np_temp_plus = w_np.copy()
                 w_np_temp_plus[idx_w] += lr_w
@@ -132,7 +132,7 @@ def main():
                 label_plus, loss_plus, _ = get_label_loss(adv_np_plus/255, victim_model, tgt_label, loss_name, targeted = not args.untargeted)
                 n_query += 1
                 print(f"iter: {n_query}, {idx_w} +, {label_plus, imagenet_names[label_plus]}, loss: {loss_plus}")
-                
+
                 # pretend
                 if (not args.untargeted and label_plus != gt_label) and (im_idx not in success_idx_list_pretend):
                     success_idx_list_pretend.add(im_idx)
@@ -187,8 +187,8 @@ def main():
                     loss_wb_list += losses_minus
                     print(f"{idx_w} -")
                     last_idx = idx_w
-                    
-                
+
+
                 idx_w = (idx_w+1)%n_wb
                 if n_query > 5 and last_idx == idx_w:
                     lr_w /= 2 # decrease the lr
