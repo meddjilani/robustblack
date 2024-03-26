@@ -1,12 +1,12 @@
 #App config
-app_config
+app_config/
 
 #TREMBA dataset G_weight
-imagenet
-G_weight
+dataset/
+G_weight/
 
 #Imagenet robust models
-models/
+imagenet/
 
 #BASES imagenet100, logs, and adversarial images
 BASES/imagenet1000/
