@@ -56,8 +56,8 @@ if __name__ == '__main__':
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 
-    train_loader, loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '../TREMBA/dataset/Imagenet/Sample_49000',
-                                                      'data_path':'../TREMBA/dataset/Imagenet/Sample_1000',
+    train_loader, loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '../dataset/Imagenet/Sample_49000',
+                                                      'data_path':'../dataset/Imagenet/Sample_1000',
                                                       'train_batch_size': args.lgv_batch_size,
                                                       'test_batch_size': args.batch_size,
                                                       'gpu': args.gpu,

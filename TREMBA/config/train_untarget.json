@@ -1,6 +1,6 @@
 {
-  "data_path": "./dataset/Imagenet/Sample_1000",
-  "train_path": "./dataset/Imagenet/Sample_49000",
+  "data_path": "../dataset/Imagenet/Sample_1000",
+  "train_path": "../dataset/Imagenet/Sample_49000",
   "epsilon": 0.03125,
   "learning_rate_G": 0.01,
   "batch_size": 64,

@@ -52,7 +52,7 @@ if __name__ == '__main__':
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 
-    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':'../TREMBA/dataset/Imagenet/Sample_1000', 'batch_size':args.batch_size})
+    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':args.batch_size})
 
     suc_rate_steps = 0
     images_steps = 0
