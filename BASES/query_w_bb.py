@@ -6,6 +6,7 @@ Attack blackbox victim model via querying weight space of ensemble models.
 Blackbox setting
 """
 
+from comet_ml import Experiment
 import argparse
 from pathlib import Path
 
@@ -20,6 +21,14 @@ from tqdm import tqdm
 
 from class_names_imagenet import lab_dict as imagenet_names
 from utils_bases import load_imagenet_1000, load_model_torchvision, get_adv_np, get_label_loss
+
+import os
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
+sys.path.append(parent_dir)
+from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
+from utils_robustblack import set_random_seed
 
 
 def main():
@@ -39,8 +48,15 @@ def main():
     parser.add_argument("--iterw", type=int, default=50, help="iterations of updating w")
     parser.add_argument("--n_im", type=int, default=1000, help="number of images")
     parser.add_argument("-untargeted", action='store_true', help="run untargeted attack")
+    parser.add_argument('--seed', default=42, type=int)
     args = parser.parse_args()
+    set_random_seed(args.seed)
 
+    experiment = Experiment(
+        api_key=COMET_APIKEY,
+        project_name=COMET_PROJECT,
+        workspace=COMET_WORKSPACE,
+    )
 
     n_wb = args.n_wb
     bound = args.bound
@@ -61,6 +77,10 @@ def main():
                 'regnet_y_400mf', 'resnext101_32x8d', 'convnext_small', \
                 'vgg13', 'resnet50', 'densenet201', 'inception_v3', 'shufflenet_v2_x1_0', \
                 'mobilenet_v3_small', 'wide_resnet50_2', 'efficientnet_b4', 'regnet_x_400mf', 'vit_b_16']
+    parameters = {'attack': 'BASES', **vars(args)}
+    experiment.log_parameters(parameters)
+    experiment.set_name("BASES_"+surrogate_names[:n_wb]+"_"+args.victim)
+
     wb = []
     for model_name in surrogate_names[:n_wb]:
         print(f"load: {model_name}")
@@ -87,6 +107,8 @@ def main():
     success_idx_list_pretend = set() # untargeted success
     query_list = []
     query_list_pretend = []
+    queries = []
+    count_correctly_classified_images = 0
     for im_idx in tqdm(range(args.n_im)):
         lr_w = float(args.lr) # re-initialize
         im_np = np.array(Image.open(img_paths[im_idx]).convert('RGB'))
@@ -98,6 +120,12 @@ def main():
             tgt_label = gt_label
             exp_name = f"idx{im_idx}_f{gt_label}_untargeted"
 
+        if args.untargeted and gt_label != pred_label:
+            continue
+            print('Image is already misclassified by victim model in UNTARGETED ATTACK')
+        else:
+            count_correctly_classified_images +=1
+
         # start from equal weights
         w_np = np.array([1 for _ in range(len(wb))]) / len(wb)
         adv_np, losses = get_adv_np(im_np, tgt_label, w_np, wb, bound, eps, n_iters, alpha, fuse=fuse, untargeted=args.untargeted, loss_name=loss_name, adv_init=None)
@@ -108,6 +136,26 @@ def main():
         loss_bb_list = []       # loss of victim model
         print(f"{label_idx, imagenet_names[label_idx]}, loss: {loss}")
         print(f"w: {w_np.tolist()}")
+        print(label_idx != tgt_label, label_idx,tgt_label)
+
+        if args.untargeted:
+            if label_idx != tgt_label:
+                suc_rate = 1
+                suc_rate_steps += suc_rate
+                queries.append(n_query)
+            else:
+                suc_rate = 0
+            metrics = {'suc_rate_steps': suc_rate_steps/count_correctly_classified_images, 'suc_rate': suc_rate,
+                   'queries_steps': np.mean(queries)}
+        else:
+            if label_idx == tgt_label:
+                suc_rate = 1
+                suc_rate_steps += suc_rate
+                queries.append(n_query)
+            else:
+                suc_rate = 0
+            metrics = {'suc_rate_steps': suc_rate_steps/im_idx+1, 'suc_rate': suc_rate,
+                   'queries_steps': np.mean(queries)}
 
         # pretend
         if not args.untargeted and label_idx != gt_label:
@@ -133,6 +181,26 @@ def main():
                 n_query += 1
                 print(f"iter: {n_query}, {idx_w} +, {label_plus, imagenet_names[label_plus]}, loss: {loss_plus}")
 
+                if args.untargeted:
+                    if label_plus != tgt_label:
+                        suc_rate = 1
+                        suc_rate_steps += suc_rate
+                        queries.append(n_query)
+                    else:
+                        suc_rate = 0
+                    metrics = {'suc_rate_steps': suc_rate_steps / count_correctly_classified_images,
+                               'suc_rate': suc_rate,
+                               'queries_steps': np.mean(queries)}
+                else:
+                    if label_plus == tgt_label:
+                        suc_rate = 1
+                        suc_rate_steps += suc_rate
+                        queries.append(n_query)
+                    else:
+                        suc_rate = 0
+                    metrics = {'suc_rate_steps': suc_rate_steps / im_idx + 1, 'suc_rate': suc_rate,
+                               'queries_steps': np.mean(queries)}
+
                 # pretend
                 if (not args.untargeted and label_plus != gt_label) and (im_idx not in success_idx_list_pretend):
                     success_idx_list_pretend.add(im_idx)
@@ -155,6 +223,26 @@ def main():
                 label_minus, loss_minus, _ = get_label_loss(adv_np_minus/255, victim_model, tgt_label, loss_name, targeted = not args.untargeted)
                 n_query += 1
                 print(f"iter: {n_query}, {idx_w} -, {label_minus, imagenet_names[label_minus]}, loss: {loss_minus}")
+
+                if args.untargeted:
+                    if label_minus != tgt_label:
+                        suc_rate = 1
+                        suc_rate_steps += suc_rate
+                        queries.append(n_query)
+                    else:
+                        suc_rate = 0
+                    metrics = {'suc_rate_steps': suc_rate_steps / count_correctly_classified_images,
+                               'suc_rate': suc_rate,
+                               'queries_steps': np.mean(queries)}
+                else:
+                    if label_minus == tgt_label:
+                        suc_rate = 1
+                        suc_rate_steps += suc_rate
+                        queries.append(n_query)
+                    else:
+                        suc_rate = 0
+                    metrics = {'suc_rate_steps': suc_rate_steps / im_idx + 1, 'suc_rate': suc_rate,
+                               'queries_steps': np.mean(queries)}
 
                 # pretend
                 if (not args.untargeted and label_minus != gt_label) and (im_idx not in success_idx_list_pretend):
@@ -248,6 +336,11 @@ def main():
 
         print(f"query_list: {query_list}")
         print(f"avg queries: {np.mean(query_list)}")
+
+        if args.untargeted:
+            experiment.log_metrics(metrics, step=count_correctly_classified_images)
+        else:
+            experiment.log_metrics(metrics, step=im_idx + 1)
 
 
 if __name__ == '__main__':

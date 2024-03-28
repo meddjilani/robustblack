@@ -14,6 +14,7 @@ from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
 
 import DataLoader
 import torchvision.models as models
+from utils_robustblack import set_random_seed
 
 
 def load_model_torchvision(model_name, device):
@@ -36,8 +37,10 @@ if __name__ == '__main__':
     parser.add_argument('--lgv_nb_models_epoch', type=int, default=2)
     parser.add_argument("--lgv_lr", type=float, default=0.05)
     parser.add_argument('--lgv_batch_size', type=int, default=128)
+    parser.add_argument('--seed', default=42, type=int)
 
     args = parser.parse_args()
+    set_random_seed(args.seed)
 
     experiment = Experiment(
         api_key=COMET_APIKEY,

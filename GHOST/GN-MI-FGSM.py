@@ -16,6 +16,7 @@ from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
 import DataLoader
 
 import torchvision_ghost.models as ghost_models
+from utils_robustblack import set_random_seed
 
 
 def load_ghost_model_torchvision(model_name, device):
@@ -33,8 +34,10 @@ if __name__ == '__main__':
     parser.add_argument('--steps', type=int,default=10)
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
+    parser.add_argument('--seed', default=42, type=int)
 
     args = parser.parse_args()
+    set_random_seed(args.seed)
 
     experiment = Experiment(
         api_key=COMET_APIKEY,

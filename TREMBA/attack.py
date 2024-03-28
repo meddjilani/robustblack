@@ -1,3 +1,4 @@
+from comet_ml import Experiment
 import argparse
 import torchvision.models as models
 import os
@@ -8,6 +9,15 @@ from FCN import *
 from Normalize import Normalize, Permute
 from imagenet_model.Resnet import resnet152_denoise, resnet101_denoise
 from robustbench.utils import load_model
+
+import os
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
+sys.path.append(parent_dir)
+from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
+from utils_robustblack import set_random_seed
+
 
 
 def EmbedBA(function, encoder, decoder, image, label, config, latent=None):
@@ -65,8 +75,17 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--config', default='config.json', help='config file')
 parser.add_argument('--device', type=str, default='cuda:0', help="GPU ID: 0,1")
 parser.add_argument('--save_prefix', default=None, help='override save_prefix in config file')
-parser.add_argument('--model_name', default=None)
+parser.add_argument('--model_name', default='Wong2020Fast')
+parser.add_argument('--seed', default=42, type=int)
+
 args = parser.parse_args()
+set_random_seed(args.seed)
+
+experiment = Experiment(
+    api_key=COMET_APIKEY,
+    project_name=COMET_PROJECT,
+    workspace=COMET_WORKSPACE,
+)
 
 with open(args.config) as config_file:
     state = json.load(config_file)
@@ -79,8 +98,12 @@ if args.model_name is not None:
 new_state = state.copy()
 new_state['batch_size'] = 1
 new_state['test_bs'] = 1
-device = torch.device(args.device)
 
+parameters = {'attack': 'TREMBA', **vars(args)}
+experiment.log_parameters(parameters)
+experiment.set_name("TREMBA_" + new_state['generator_name'] + "_" + args.model_name)
+
+device = torch.device(args.device)
 weight = torch.load(os.path.join("G_weight", state['generator_name']+".pytorch"), map_location=device)
 
 encoder_weight = {}
@@ -166,6 +189,10 @@ for i, (images, labels) in enumerate(dataloader):
         count_total += int(correct)
         print("image: {} eval_count: {} success: {} average_count: {} success_rate: {}".format(i, F.current_counts, success, F.get_average(), float(count_success) / float(count_total)))
         F.new_counter()
+
+        metrics = {'suc_rate_steps': float(count_success) / float(count_total), 'suc_rate': int(success),
+                   'queries_steps': F.get_average()}
+        experiment.log_metrics(metrics, step=count_total)
 
 success_rate = float(count_success) / float(count_total)
 if state['target']:
