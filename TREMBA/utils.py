@@ -57,6 +57,7 @@ class Function(nn.Module):
         self.batch_size = batch_size
         self.current_counts = 0
         self.counts = []
+        self.counts_successful = []
         self.nlabels = nlabels
 
     def _loss(self, logits, label):
@@ -97,7 +98,16 @@ class Function(nn.Module):
         self.counts.append(self.current_counts)
         self.current_counts = 0
 
+    def new_counter_successful(self):
+        self.counts_successful.append(self.current_counts)
+        self.counts.append(self.current_counts)
+        self.current_counts = 0
+
     def get_average(self, iter=50000):
         counts = np.array(self.counts)
         return np.mean(counts[counts<iter])
+
+    def get_average_successful(self, iter=50000):
+        counts_successful = np.array(self.counts_successful)
+        return np.mean(counts_successful[counts_successful<iter])
     

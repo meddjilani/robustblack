@@ -188,10 +188,14 @@ for i, (images, labels) in enumerate(dataloader):
         count_success += int(success)
         count_total += int(correct)
         print("image: {} eval_count: {} success: {} average_count: {} success_rate: {}".format(i, F.current_counts, success, F.get_average(), float(count_success) / float(count_total)))
-        F.new_counter()
+
+        if success:
+            F.new_counter_successful()
+        else:
+            F.new_counter()
 
         metrics = {'suc_rate_steps': float(count_success) / float(count_total), 'suc_rate': int(success),
-                   'queries_steps': F.get_average()}
+                   'queries_steps': F.get_average_successful(), 'queries_steps_all_images': F.get_average()}
         experiment.log_metrics(metrics, step=count_total)
 
 success_rate = float(count_success) / float(count_total)
