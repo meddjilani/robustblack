@@ -162,6 +162,7 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             identity = self.downsample(x)
 
+        random_range = 0.22
         perturb_var = torch.rand((1, identity.size(1), 1, 1), requires_grad=False,
                                  device=identity.device) * self.random_range * 2 + (
                               1 - self.random_range)
