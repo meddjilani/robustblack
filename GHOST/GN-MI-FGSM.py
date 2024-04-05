@@ -17,10 +17,16 @@ import DataLoader
 
 import torchvision_ghost.models as ghost_models
 from utils_robustblack import set_random_seed
+from utils_robustblack.Normalize import Normalize
 
 
-def load_ghost_model_torchvision(model_name, device):
-    model = getattr(ghost_models, model_name)(pretrained=True).to(device).eval()
+def load_ghost_model_torchvision(model_name, device, mean, std):
+    model = getattr(ghost_models, model_name)(pretrained=True)
+    model = nn.Sequential(
+        Normalize(mean, std),
+        model
+    )
+    model.to(device).eval()
     return model
 
 if __name__ == '__main__':
@@ -51,11 +57,10 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    source_model = load_ghost_model_torchvision(args.model, device)
+    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':args.batch_size})
+    source_model = load_ghost_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
-
-    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':args.batch_size})
 
     suc_rate_steps = 0
     images_steps = 0

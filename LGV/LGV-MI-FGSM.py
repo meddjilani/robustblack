@@ -15,10 +15,16 @@ from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
 import DataLoader
 import torchvision.models as models
 from utils_robustblack import set_random_seed
+from utils_robustblack.Normalize import Normalize
 
 
-def load_model_torchvision(model_name, device):
-    model = getattr(models, model_name)(pretrained=True).to(device).eval()
+def load_model_torchvision(model_name, device, mean, std):
+    model = getattr(models, model_name)(pretrained=True)
+    model = nn.Sequential(
+        Normalize(mean, std),
+        model
+    )
+    model.to(device).eval()
     return model
 
 
@@ -54,17 +60,15 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    source_model = load_model_torchvision(args.model, device)
-
-    target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
-    target_model.to(device)
-
     train_loader, loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '../dataset/Imagenet/Sample_49000',
                                                       'data_path':'../dataset/Imagenet/Sample_1000',
                                                       'train_batch_size': args.lgv_batch_size,
                                                       'test_batch_size': args.batch_size,
                                                       'gpu': args.gpu,
                                                       })
+    source_model = load_model_torchvision(args.model, device, mean, std)
+    target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
+    target_model.to(device)
 
     suc_rate_steps = 0
     images_steps = 0
