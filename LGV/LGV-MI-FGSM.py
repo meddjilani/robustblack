@@ -12,9 +12,8 @@ parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
 
-import DataLoader
 import torchvision.models as models
-from utils_robustblack import set_random_seed
+from utils_robustblack import DataLoader, set_random_seed
 from utils_robustblack.Normalize import Normalize
 
 
@@ -38,11 +37,13 @@ if __name__ == '__main__':
     parser.add_argument('--decay', type=float,default= 1.0)
     parser.add_argument('--steps', type=int,default=10)
     parser.add_argument('--batch_size', type=int, default=16)
-    parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
-    parser.add_argument('--lgv_epochs', type=int, default=10)
+    parser.add_argument('--lgv_epochs', type=int, default=5)
     parser.add_argument('--lgv_nb_models_epoch', type=int, default=2)
     parser.add_argument("--lgv_lr", type=float, default=0.05)
     parser.add_argument('--lgv_batch_size', type=int, default=128)
+    parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
+    parser.add_argument('--train_path', type=str, default= '../dataset/Imagenet/Sample_49000')
+    parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
 
     args = parser.parse_args()
@@ -60,12 +61,13 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    train_loader, loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '../dataset/Imagenet/Sample_49000',
-                                                      'data_path':'../dataset/Imagenet/Sample_1000',
+    train_loader, loader, nlabels, mean, std = DataLoader.imagenet({'train_path': args.train_path,
+                                                      'data_path': args.data_path,
                                                       'train_batch_size': args.lgv_batch_size,
                                                       'test_batch_size': args.batch_size,
                                                       'gpu': args.gpu,
                                                       })
+
     source_model = load_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)

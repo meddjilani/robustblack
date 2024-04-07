@@ -13,10 +13,9 @@ parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 
 from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
-import DataLoader
 
 import torchvision_ghost.models as ghost_models
-from utils_robustblack import set_random_seed
+from utils_robustblack import DataLoader, set_random_seed
 from utils_robustblack.Normalize import Normalize
 
 
@@ -39,6 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('--decay', type=float,default= 1.0)
     parser.add_argument('--steps', type=int,default=10)
     parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':args.batch_size})
+    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':args.data_path, 'batch_size':args.batch_size})
     source_model = load_ghost_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
