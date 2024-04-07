@@ -43,6 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('--lgv_batch_size', type=int, default=128)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
     parser.add_argument('--train_path', type=str, default= '../dataset/Imagenet/Sample_49000')
+    parser.add_argument('--lgv_models', type=str, default= './lgv_models')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
 
@@ -61,25 +62,32 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    train_loader, loader, nlabels, mean, std = DataLoader.imagenet({'train_path': args.train_path,
+    train_loader, loader, nlabels, mean, std = DataLoader.imagenet_train_test({'train_path': args.train_path,
                                                       'data_path': args.data_path,
                                                       'train_batch_size': args.lgv_batch_size,
                                                       'test_batch_size': args.batch_size,
                                                       'gpu': args.gpu,
                                                       })
 
-    source_model = load_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 
     suc_rate_steps = 0
     images_steps = 0
+
+    loaded_models = []
+    source_model = load_model_torchvision(args.model, device, mean, std)
     attack = torchattacks.LGV(source_model, train_loader, lr=args.lgv_lr, epochs=args.lgv_epochs,
                               nb_models_epoch=args.lgv_nb_models_epoch, wd=1e-4, n_grad=1,
                               attack_class=torchattacks.attacks.mifgsm.MIFGSM, eps=args.eps, alpha=args.alpha,
                               steps=args.steps, decay=args.decay, verbose=True)
-    attack.collect_models()
-    attack.save_models('./lgv_models')
+    for filename in os.listdir(args.lgv_models):
+        source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename))["state_dict"])
+        source_model.eval()
+        loaded_models.append(source_model)
+
+    attack.load_models(loaded_models)
+
     for batch_ndx, (x_test, y_test) in enumerate(loader):
 
         x_test, y_test = x_test.to(device), y_test.to(device)
