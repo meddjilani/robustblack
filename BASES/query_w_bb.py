@@ -28,17 +28,16 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
-from utils_robustblack import set_random_seed
+from utils_robustblack import DataLoader, set_random_seed
 
 
 def main():
     parser = argparse.ArgumentParser(description="BASES attack")
-    parser.add_argument("--victim", nargs="?", default='vgg19', help="victim model")
+    parser.add_argument("--victim", nargs="?", default='Standard_R50', help="victim model")
     parser.add_argument("--n_wb", type=int, default=10, help="number of models in the ensemble: 4,10,20")
     parser.add_argument("--bound", default='linf', choices=['linf','l2'], help="bound in linf or l2 norm ball")
-    parser.add_argument("--eps", type=int, default=16, help="perturbation bound: 10 for linf, 3128 for l2")
+    parser.add_argument("--eps", type=int, default=8, help="perturbation bound: 10 for linf, 3128 for l2")
     parser.add_argument("--iters", type=int, default=10, help="number of inner iterations: 5,6,10,20...")
-    parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument("--root", nargs="?", default='result', help="the folder name of result")
 
     parser.add_argument("--fuse", nargs="?", default='loss', help="the fuse method. loss or logit")
@@ -48,6 +47,10 @@ def main():
     parser.add_argument("--iterw", type=int, default=50, help="iterations of updating w")
     parser.add_argument("--n_im", type=int, default=1000, help="number of images")
     parser.add_argument("-untargeted", action='store_true', help="run untargeted attack")
+    parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
+    parser.add_argument('--exp_root', type=str, default= "bb_w_logs/")
+    parser.add_argument('--adv_root', type=str, default= "bb_w_adv_images/")
+    parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -68,9 +71,6 @@ def main():
     lr_w = float(args.lr)
     device = torch.device(args.gpu)
 
-    # load images
-    img_paths, gt_labels, tgt_labels = load_imagenet_1000(dataset_root = 'imagenet1000')
-
     # load surrogate models
     surrogate_names = ['vgg16_bn', 'resnet18', 'squeezenet1_1', 'googlenet', \
                 'mnasnet1_0', 'densenet161', 'efficientnet_b0', \
@@ -79,7 +79,7 @@ def main():
                 'mobilenet_v3_small', 'wide_resnet50_2', 'efficientnet_b4', 'regnet_x_400mf', 'vit_b_16']
     parameters = {'attack': 'BASES', **vars(args)}
     experiment.log_parameters(parameters)
-    experiment.set_name("BASES_"+surrogate_names[:n_wb]+"_"+args.victim)
+    experiment.set_name("BASES_"+'_'.join(surrogate_names[:n_wb])+"_"+args.victim)
 
     wb = []
     for model_name in surrogate_names[:n_wb]:
@@ -96,12 +96,12 @@ def main():
     if args.untargeted:
         exp = 'untargeted_' + exp
 
-    exp_root = Path(f"bb_w_logs/") / exp
+    exp_root = Path(args.exp_root) / exp
     exp_root.mkdir(parents=True, exist_ok=True)
-    print(exp)
-    adv_root = Path(f"bb_w_adv_images/") / exp
+    adv_root = Path(args.adv_root) / exp
     adv_root.mkdir(parents=True, exist_ok=True)
 
+    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':args.data_path, 'batch_size':1})
 
     success_idx_list = set()
     success_idx_list_pretend = set() # untargeted success
@@ -109,17 +109,20 @@ def main():
     query_list_pretend = []
     queries = []
     count_correctly_classified_images = 0
-    for im_idx in tqdm(range(args.n_im)):
+    suc_rate_steps = 0
+    for im_idx, (x_test, y_test) in enumerate(loader):
+        x_test_sq_per = torch.squeeze(x_test, dim=0).permute(1,2,0)
+        im_np = np.array(x_test_sq_per)
         lr_w = float(args.lr) # re-initialize
-        im_np = np.array(Image.open(img_paths[im_idx]).convert('RGB'))
-        gt_label = gt_labels[im_idx]
+        gt_label = y_test.item()
         gt_label_name = imagenet_names[gt_label].split(',')[0]
-        tgt_label = tgt_labels[im_idx]
+        tgt_label = (y_test.item()+1)%1000
         exp_name = f"idx{im_idx}_f{gt_label}_t{tgt_label}"
         if args.untargeted:
             tgt_label = gt_label
             exp_name = f"idx{im_idx}_f{gt_label}_untargeted"
 
+        pred_label = torch.argmax(victim_model(x_test.to(device)), dim=1).item()
         if args.untargeted and gt_label != pred_label:
             continue
             print('Image is already misclassified by victim model in UNTARGETED ATTACK')
@@ -305,7 +308,7 @@ def main():
 
 
         # save adv image
-        adv_path = adv_root / f"{img_paths[im_idx].name}"
+        adv_path = adv_root / f"{im_idx} {gt_label_name}.png"
         adv_png = Image.fromarray(adv_np.astype(np.uint8))
         adv_png.save(adv_path)
 
