@@ -78,7 +78,7 @@ def imagenet_gpu(state):
 
     train_loader = torch.utils.data.DataLoader(
         ImageFolderWithGPU(state['gpu'], state['train_path'], transform=transform),
-        batch_size=state['train_batch_size'], shuffle=True, pin_memory=True)
+        batch_size=state['train_batch_size'], shuffle=True, pin_memory=False)
 
     nlabels = 1000
 
