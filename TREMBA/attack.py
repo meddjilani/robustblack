@@ -15,7 +15,7 @@ import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
-from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT
+from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_RQ1
 from utils_robustblack import set_random_seed
 
 
@@ -83,7 +83,7 @@ set_random_seed(args.seed)
 
 experiment = Experiment(
     api_key=COMET_APIKEY,
-    project_name=COMET_PROJECT,
+    project_name=COMET_PROJECT_RQ1,
     workspace=COMET_WORKSPACE,
 )
 
