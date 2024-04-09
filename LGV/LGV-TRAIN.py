@@ -13,7 +13,7 @@ sys.path.append(parent_dir)
 import torchvision.models as models
 from utils_robustblack import DataLoader, set_random_seed
 from utils_robustblack.Normalize import Normalize
-
+from robustbench.utils import load_model
 
 def load_model_torchvision(model_name, device, mean, std):
     model = getattr(models, model_name)(pretrained=True)
@@ -37,10 +37,12 @@ if __name__ == '__main__':
     parser.add_argument('--lgv_nb_models_epoch', type=int, default=2)
     parser.add_argument("--lgv_lr", type=float, default=0.05)
     parser.add_argument('--lgv_batch_size', type=int, default=128)
-    parser.add_argument('--train_path', type=str, default= '../dataset/Imagenet/Sample_49000')
-    parser.add_argument('--save_models', type=str, default= '../dataset/Imagenet/Sample_1000')
+    parser.add_argument('--train_path', type=str, default= '/mnt/data/data/mdjilani/dataset/Imagenet/Sample_49000')
+    parser.add_argument('--save_models', type=str, default= '/mnt/data/data/mdjilani/')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
+    parser.add_argument("-robust", action='store_true', help="use robust models")
+
 
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -51,11 +53,17 @@ if __name__ == '__main__':
                                                       'train_batch_size': args.lgv_batch_size,
                                                       'gpu': args.gpu,
                                                       })
-
-    source_model = load_model_torchvision(args.model, device, mean, std)
+    if args.robust:
+        source_model = load_model(args.model, dataset = 'imagenet', threat_model = 'Linf').to(device)
+        path_save_models = args.save_models + 'lgv_models_robust'
+        
+    else:
+        source_model = load_model_torchvision(args.model, device, mean, std)
+        path_save_models = args.save_models + 'lgv_models'
+        
     attack = torchattacks.LGV(source_model, train_loader, lr=args.lgv_lr, epochs=args.lgv_epochs,
                               nb_models_epoch=args.lgv_nb_models_epoch, wd=1e-4, n_grad=1,
                               attack_class=torchattacks.attacks.mifgsm.MIFGSM, eps=args.eps, alpha=args.alpha,
                               steps=args.steps, decay=args.decay, verbose=True)
     attack.collect_models()
-    attack.save_models(args.save_models)
+    attack.save_models(path_save_models)
