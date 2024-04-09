@@ -164,8 +164,8 @@ class Bottleneck(nn.Module):
 
         random_range = 0.22
         perturb_var = torch.rand((1, identity.size(1), 1, 1), requires_grad=False,
-                                 device=identity.device) * self.random_range * 2 + (
-                              1 - self.random_range)
+                                 device=identity.device) * random_range * 2 + (
+                              1 - random_range)
 
         out += identity
         out = self.relu(out)
