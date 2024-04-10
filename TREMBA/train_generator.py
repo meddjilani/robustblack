@@ -12,11 +12,14 @@ from utils import *
 import torchvision.models as models
 import copy
 from imagenet_model.Resnet import *
+from robustbench.utils import load_model
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--device', type=str, default='cuda:0')
     parser.add_argument('--config', default='config_joint_train_Imagenet_GAN.json', help='config file')
+    parser.add_argument("-robust", action='store_true', help="use robust models")
 
     args = parser.parse_args()
 
@@ -26,32 +29,38 @@ if __name__ == '__main__':
 
     train_loader, test_loader, nlabels, mean, std = DataLoader.imagenet(state)
     nets = []
-    for model_name in state['model_name']:
-        print(model_name)
-        if model_name == "VGG16":
-            pretrained_model = models.vgg16_bn(pretrained=True)
-        elif model_name == 'Resnet18':
-            pretrained_model = models.resnet18(pretrained=True)
-        elif model_name == 'Squeezenet':
-            pretrained_model = models.squeezenet1_1(pretrained=True)
-        elif model_name == 'Googlenet':
-            pretrained_model = models.googlenet(pretrained=True)
-        elif model_name == 'Adv_Denoise_Resnet152':
-            pretrained_model = resnet152_denoise()
-            loaded_state_dict = torch.load(os.path.join('weight', model_name+".pytorch"))
-            pretrained_model.load_state_dict(loaded_state_dict)
-        if 'defense' in state and state['defense']:
-            net = nn.Sequential(
-                Normalize(mean, std),
-                Permute([2,1,0]),
-                pretrained_model
-            )
-        else:
-            net = nn.Sequential(
-                Normalize(mean, std),
-                pretrained_model
-            )
-        nets.append(net)
+
+    if args.robust:
+        for model_name in state['model_name']:
+            net = load_model(model_name, dataset='imagenet', threat_model='Linf')
+            nets.append(net)
+    else:
+        for model_name in state['model_name']:
+            print(model_name)
+            if model_name == "VGG16":
+                pretrained_model = models.vgg16_bn(pretrained=True)
+            elif model_name == 'Resnet18':
+                pretrained_model = models.resnet18(pretrained=True)
+            elif model_name == 'Squeezenet':
+                pretrained_model = models.squeezenet1_1(pretrained=True)
+            elif model_name == 'Googlenet':
+                pretrained_model = models.googlenet(pretrained=True)
+            elif model_name == 'Adv_Denoise_Resnet152':
+                pretrained_model = resnet152_denoise()
+                loaded_state_dict = torch.load(os.path.join('weight', model_name+".pytorch"))
+                pretrained_model.load_state_dict(loaded_state_dict)
+            if 'defense' in state and state['defense']:
+                net = nn.Sequential(
+                    Normalize(mean, std),
+                    Permute([2,1,0]),
+                    pretrained_model
+                )
+            else:
+                net = nn.Sequential(
+                    Normalize(mean, std),
+                    pretrained_model
+                )
+            nets.append(net)
 
     model = nn.Sequential(
         Imagenet_Encoder(),
@@ -138,10 +147,12 @@ if __name__ == '__main__':
         state['epoch'] = epoch
         train()
         torch.cuda.empty_cache()
-        if epoch % 10 == 0:
+        if epoch % 20 == 0:
             with torch.no_grad():
                 test()
             print(state)
+            if state['test_success'] > best_success:
+                best_success = state['test_success']
 
         torch.save(model.module.state_dict(), os.path.join("G_weight", save_name))
         print("epoch {}, Current success: {}, Best success: {}".format(epoch, state['test_success'], best_success))
