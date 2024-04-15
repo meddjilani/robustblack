@@ -68,11 +68,11 @@ if __name__ == '__main__':
     )
 
     for i in range(len(nets)):
-        nets[i] = torch.nn.DataParallel(nets[i], args.device)
+        nets[i] = torch.nn.DataParallel(nets[i])
         nets[i].eval()
         nets[i].to(device)
 
-    model = torch.nn.DataParallel(model, args.device)
+    model = torch.nn.DataParallel(model)
     model.to(device)
     print(model)
 

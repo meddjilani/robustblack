@@ -24,11 +24,11 @@ def imagenet(state):
 
     train_loader = torch.utils.data.DataLoader(
         dset.ImageFolder(state['train_path'], transform=transform),
-        batch_size=state['batch_size'], shuffle=False, pin_memory=True)
+        batch_size=state['batch_size'], num_workers=3, shuffle=False, pin_memory=True)
 
     test_loader = torch.utils.data.DataLoader(
         dset.ImageFolder(state['data_path'], transform=transform),
-        batch_size=state['batch_size'], shuffle=False, pin_memory=True)
+        batch_size=state['batch_size'], num_workers=3, shuffle=False, pin_memory=True)
 
     nlabels = 1000
 
