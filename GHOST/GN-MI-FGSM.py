@@ -42,6 +42,7 @@ if __name__ == '__main__':
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--comet_proj', default='RQ1', type=str)
+    parser.add_argument("-robust", action='store_true', help="use robust models")
 
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -60,7 +61,10 @@ if __name__ == '__main__':
     device = torch.device(args.gpu)
 
     loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':args.data_path, 'batch_size':args.batch_size})
-    source_model = load_ghost_model_torchvision(args.model, device, mean, std)
+    if args.robust:
+        source_model = load_model(args.model, dataset='imagenet', threat_model='Linf').to(device)
+    else:
+        source_model = load_ghost_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 

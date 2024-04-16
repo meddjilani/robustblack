@@ -47,6 +47,7 @@ if __name__ == '__main__':
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--comet_proj', default='RQ1', type=str)
+    parser.add_argument("-robust", action='store_true', help="use robust models")
 
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -78,7 +79,10 @@ if __name__ == '__main__':
     images_steps = 0
 
     loaded_models = []
-    source_model = load_model_torchvision(args.model, device, mean, std)
+    if args.robust:
+        source_model = load_model(args.model, dataset='imagenet', threat_model='Linf').to(device)
+    else:
+        source_model = load_model_torchvision(args.model, device, mean, std)
     attack = torchattacks.LGV(source_model, train_loader, lr=args.lgv_lr, epochs=args.lgv_epochs,
                               nb_models_epoch=args.lgv_nb_models_epoch, wd=1e-4, n_grad=1,
                               attack_class=torchattacks.attacks.mifgsm.MIFGSM, eps=args.eps, alpha=args.alpha,
