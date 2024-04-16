@@ -1,4 +1,3 @@
-export CUDA_VISIBLE_DEVICES="0"  # Assuming this is intended
 
 my_list=( "Standard_R50" "Ding2020MMA" "Rony2019Decoupling" "Salman2020Do_50_2" "Chen2024Data_WRN_50_2" "Singh2023Revisiting_ViT-B-ConvStem" "Liu2023Comprehensive_ConvNeXt-B" "Liu2023Comprehensive_Swin-B" "Liu2023Comprehensive_ConvNeXt-L" "Liu2023Comprehensive_Swin-L" )
 
