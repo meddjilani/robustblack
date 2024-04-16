@@ -7,7 +7,7 @@ for seed in 42 1 10; do
   for target in "${my_list[@]}"; do
 
     cd LGV
-    python LGV-MI-FGSM.py --seed $seed --target $target --data_path $test_path --train_path $train_path --gpu cuda --model Engstrom2019Robustness --batch_size 64 --lgv_models "/mnt/data/data/mdjilani/lgv_models_robust" --comet_proj RQ3 -robust
+    python LGV-MI-FGSM.py --seed $seed --target $target --data_path $test_path --train_path $train_path --gpu cuda --model Engstrom2019Robustness --batch_size 64 --lgv_models "/raid/data/mdjilani/lgv_models_robust" --comet_proj RQ3 -robust
 
     cd ../GHOST
     python GN-MI-FGSM.py --seed $seed --target $target --data_path $test_path --gpu cuda --model Engstrom2019Robustness --batch_size 64 --comet_proj RQ3 -robust
