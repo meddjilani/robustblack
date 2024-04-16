@@ -1,5 +1,10 @@
+from comet_ml import Experiment
 import argparse
 import os
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
+sys.path.append(parent_dir)
 import json
 import torch
 import torch.nn as nn
@@ -13,6 +18,8 @@ import torchvision.models as models
 import copy
 from imagenet_model.Resnet import *
 from robustbench.utils import load_model
+from pathlib import Path
+from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_TRAIN
 
 
 if __name__ == '__main__':
@@ -20,12 +27,21 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default='cuda:0')
     parser.add_argument('--config', default='config_joint_train_Imagenet_GAN.json', help='config file')
     parser.add_argument("-robust", action='store_true', help="use robust models")
+    parser.add_argument('--generator_path', default='/raid/data/mdjilani/G_weight', help='config file')
 
     args = parser.parse_args()
+    experiment = Experiment(
+    api_key=COMET_APIKEY,
+    project_name=COMET_PROJECT_TRAIN,
+    workspace=COMET_WORKSPACE,
+    )
 
     with open(args.config) as config_file:
         state = json.load(config_file)
     device = torch.device(args.device)
+    parameters = {'attack': 'TREMBA_TRAIN', **vars(args), **state}
+    experiment.log_parameters(parameters)
+    experiment.set_name("TREMBA_TRAIN_" + "_".join(state['model_name']))
 
     train_loader, test_loader, nlabels, mean, std = DataLoader.imagenet(state)
     nets = []
@@ -153,6 +169,8 @@ if __name__ == '__main__':
             print(state)
             if state['test_success'] > best_success:
                 best_success = state['test_success']
-
-        torch.save(model.module.state_dict(), os.path.join("G_weight", save_name))
+        experiment.log_metrics({'test_success':state['test_success']}, step=epoch)
+        save_generator = Path(args.generator_path)
+        save_generator.mkdir(parents=True, exist_ok=True)
+        torch.save(model.module.state_dict(), os.path.join(save_generator, save_name))
         print("epoch {}, Current success: {}, Best success: {}".format(epoch, state['test_success'], best_success))
