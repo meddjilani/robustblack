@@ -10,7 +10,7 @@ import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
-from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_RQ1
+from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_RQ1, COMET_PROJECT_RQ2, COMET_PROJECT_RQ3
 
 import torchvision.models as models
 from utils_robustblack import DataLoader, set_random_seed
@@ -46,13 +46,15 @@ if __name__ == '__main__':
     parser.add_argument('--lgv_models', type=str, default= './lgv_models')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
+    parser.add_argument('--comet_proj', default='RQ1', type=str)
 
     args = parser.parse_args()
     set_random_seed(args.seed)
 
+    comet_rq_proj = {'RQ1':COMET_PROJECT_RQ1, 'RQ2':COMET_PROJECT_RQ2,'RQ3':COMET_PROJECT_RQ3}
     experiment = Experiment(
         api_key=COMET_APIKEY,
-        project_name=COMET_PROJECT_RQ1,
+        project_name=comet_rq_proj[args.comet_proj],
         workspace=COMET_WORKSPACE,
     )
 
