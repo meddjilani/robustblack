@@ -90,7 +90,7 @@ def main():
     if args.robust:
         for model_name in args.models[:n_wb]:
             print(f"load: {model_name}")
-            wb.append(load_model(args.model, dataset='imagenet', threat_model='Linf').to(device))
+            wb.append(load_model(model_name, dataset='imagenet', threat_model='Linf').to(device))
     else:
         for model_name in surrogate_names[:n_wb]:
             print(f"load: {model_name}")
