@@ -33,6 +33,7 @@ from utils_robustblack import DataLoader, set_random_seed
 
 def main():
     parser = argparse.ArgumentParser(description="BASES attack")
+    parser.add_argument("--models", nargs="+", default=['Wong2020Fast', 'Engstrom2019Robustness', 'Debenedetti2022Light_XCiT-M12'], help="source models")
     parser.add_argument("--victim", nargs="?", default='Standard_R50', help="victim model")
     parser.add_argument("--n_wb", type=int, default=10, help="number of models in the ensemble: 4,10,20")
     parser.add_argument("--bound", default='linf', choices=['linf','l2'], help="bound in linf or l2 norm ball")
@@ -53,6 +54,7 @@ def main():
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--comet_proj', default='RQ1', type=str)
+    parser.add_argument("-robust", action='store_true', help="use robust models")
 
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -85,9 +87,14 @@ def main():
     experiment.set_name("BASES_"+'_'.join(surrogate_names[:n_wb])+"_"+args.victim)
 
     wb = []
-    for model_name in surrogate_names[:n_wb]:
-        print(f"load: {model_name}")
-        wb.append(load_model_torchvision(model_name, device))
+    if args.robust:
+        for model_name in args.models[:n_wb]:
+            print(f"load: {model_name}")
+            wb.append(load_model(args.model, dataset='imagenet', threat_model='Linf').to(device))
+    else:
+        for model_name in surrogate_names[:n_wb]:
+            print(f"load: {model_name}")
+            wb.append(load_model_torchvision(model_name, device))
 
     # load victim model
     victim_model = load_model(args.victim, dataset = 'imagenet', threat_model = 'Linf')
