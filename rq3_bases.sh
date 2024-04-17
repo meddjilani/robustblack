@@ -7,7 +7,7 @@ for seed in 42 1 10; do
   for target in "${my_list[@]}"; do
 
     cd BASES
-    python query_w_bb.py --seed $seed --victim $target --data_path $test_path --gpu cuda --models Wong2020Fast Engstrom2019Robustness Debenedetti2022Light_XCiT-M12 --comet_proj RQ3 -robust -untargeted
+    python query_w_bb.py --iterw 20 --seed $seed --victim $target --data_path $test_path --gpu cuda --models Wong2020Fast Engstrom2019Robustness Debenedetti2022Light_XCiT-M12 --comet_proj RQ3 -robust -untargeted
 
     cd ..
   done
