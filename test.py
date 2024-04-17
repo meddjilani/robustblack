@@ -39,7 +39,6 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    source_model = load_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 
