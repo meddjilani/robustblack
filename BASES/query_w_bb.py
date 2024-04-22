@@ -67,6 +67,8 @@ def main():
     )
 
     n_wb = args.n_wb
+    if args.robust:
+        n_wb = len(args.models)
     bound = args.bound
     eps = args.eps
     n_iters = args.iters
@@ -84,14 +86,15 @@ def main():
                 'mobilenet_v3_small', 'wide_resnet50_2', 'efficientnet_b4', 'regnet_x_400mf', 'vit_b_16']
     parameters = {'attack': 'BASES', **vars(args)}
     experiment.log_parameters(parameters)
-    experiment.set_name("BASES_"+'_'.join(surrogate_names[:n_wb])+"_"+args.victim)
 
     wb = []
     if args.robust:
+        experiment.set_name("BASES_" + '_'.join(args.models) + "_" + args.victim)
         for model_name in args.models[:n_wb]:
             print(f"load: {model_name}")
             wb.append(load_model(model_name, dataset='imagenet', threat_model='Linf').to(device))
     else:
+        experiment.set_name("BASES_" + '_'.join(surrogate_names[:n_wb]) + "_" + args.victim)
         for model_name in surrogate_names[:n_wb]:
             print(f"load: {model_name}")
             wb.append(load_model_torchvision(model_name, device))
