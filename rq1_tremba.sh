@@ -1,0 +1,14 @@
+my_list=( "Liu2023Comprehensive_ConvNeXt-L" "Bai2024MixedNUTS" "Liu2023Comprehensive_Swin-L" )
+
+train_path="/raid/data/mdjilani/dataset/Imagenet/Sample_49000"  # Removed leading /
+test_path="/raid/data/mdjilani/dataset/Imagenet/Sample_1000"  # Removed leading /
+
+for seed in 42 1 10; do
+  for target in "${my_list[@]}"; do
+
+    cd TREMBA
+    python attack.py --comet_proj RQ1 --seed $seed --model_name $target --device cuda --config config/attack_untarget.json --train_path $train_path --data_path $test_path --generator_name Imagenet_VGG16_Resnet18_Squeezenet_Googlenet_untarget.pytorch --save_path /raid/data/mdjilani/tremba_save_path_vanilla
+
+    cd ..
+  done
+done
