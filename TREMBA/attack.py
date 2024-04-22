@@ -78,6 +78,11 @@ parser.add_argument('--save_prefix', default=None, help='override save_prefix in
 parser.add_argument('--model_name', default='Wong2020Fast')
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--comet_proj', default='RQ1', type=str)
+parser.add_argument('--train_path', default='/raid/data/mdjilani/dataset/Sample_49000')
+parser.add_argument('--data_path', default='/raid/data/mdjilani/dataset/Sample_1000')
+parser.add_argument('--generator_name', default='Imagenet_Wong2020Fast_Engstrom2019Robustness_Debenedetti2022Light_XCiT-M12_untarget')
+parser.add_argument('--save_path', default='/raid/data/mdjilani/tremba_save_path')
+
 
 args = parser.parse_args()
 set_random_seed(args.seed)
@@ -96,12 +101,20 @@ if args.save_prefix is not None:
     state['save_prefix'] = args.save_prefix
 if args.model_name is not None:
     state['model_name'] = args.model_name
+if args.train_path is not None:
+    state['train_path'] = args.train_path
+if args.data_path is not None:
+    state['data_path'] = args.data_path
+if args.generator_name is not None:
+    state['generator_name'] = args.generator_name
+if args.save_path is not None:
+    state['save_path'] = args.save_path
 
 new_state = state.copy()
 new_state['batch_size'] = 1
 new_state['test_bs'] = 1
 
-parameters = {'attack': 'TREMBA', **vars(args)}
+parameters = {'attack': 'TREMBA', **vars(args), **new_state}
 experiment.log_parameters(parameters)
 experiment.set_name("TREMBA_" + new_state['generator_name'] + "_" + args.model_name)
 
