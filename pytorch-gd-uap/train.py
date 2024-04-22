@@ -49,7 +49,9 @@ def main():
     experiment.set_name("UAP_"+args.model+"_"+args.target)
 
     device = torch.device(args.gpu)
-    model = load_model_torchvision(args.model, device)
+    target_data_loader, _, mean, std = DataLoader.imagenet({'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':args.batch_size})
+
+    model = load_model_torchvision(args.model, device, mean, std)
 
     if args.baseline:
         print("Obtaining baseline fooling rate...")
@@ -62,7 +64,6 @@ def main():
     uap = gd_universal_adversarial_perturbation(model, args.model, args.prior_type, args.batch_size, device, args.patience_interval, args.id, eps=args.eps,disable_tqdm=True)
 
     # perform a final evaluation
-    target_data_loader, _, _, _ = DataLoader.imagenet({'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':args.batch_size})
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
     target_fooling_rate,  target_suc_rate= get_fooling_rate(target_model, uap, target_data_loader, device, experiment, disable_tqdm=True)

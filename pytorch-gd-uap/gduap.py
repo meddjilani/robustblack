@@ -15,13 +15,21 @@ import torchvision.transforms as transforms
 import os
 from utils_robustblack import DataLoader
 from robustbench.utils import clean_accuracy
+from utils_robustblack.Normalize import Normalize
 
 
 debug = False
 
-def load_model_torchvision(model_name, device):
-    model = getattr(models, model_name)(pretrained=True).to(device).eval()
+
+def load_model_torchvision(model_name, device, mean, std):
+    model = getattr(models, model_name)(pretrained=True)
+    model = nn.Sequential(
+        Normalize(mean, std),
+        model
+    )
+    model.to(device).eval()
     return model
+
 
 def get_conv_layers(model):
     return [module for module in model.modules() if type(module) == nn.Conv2d]
