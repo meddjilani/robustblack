@@ -3,7 +3,6 @@ import argparse
 import torchvision.models as models
 import os
 import json
-import DataLoader
 from utils import *
 from FCN import *
 from Normalize import Normalize, Permute
@@ -16,7 +15,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_RQ1, COMET_PROJECT_RQ2, COMET_PROJECT_RQ3
-from utils_robustblack import set_random_seed
+from utils_robustblack import set_random_seed, DataLoader
 
 
 
@@ -129,7 +128,7 @@ for key, val in weight.items():
     elif key.startswith('1.'):
         decoder_weight[key[2:]] = val
 
-_, dataloader, nlabels, mean, std = DataLoader.imagenet(new_state)
+dataloader, nlabels, mean, std = DataLoader.imagenet(new_state)
 if 'OSP' in state:
     if state['source_model_name'] == 'Adv_Denoise_Resnet152':
         s_model = resnet152_denoise()
