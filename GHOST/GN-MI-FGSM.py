@@ -48,7 +48,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     set_random_seed(args.seed)
 
-    comet_rq_proj = {'RQ1':COMET_PROJECT_RQ1, 'RQ2':COMET_PROJECT_RQ2,'RQ3':COMET_PROJECT_RQ3}
+    comet_rq_proj = {'RQ1':COMET_PROJECT_RQ1, 'RQ2':COMET_PROJECT_RQ2, 'RQ3':COMET_PROJECT_RQ3}
     experiment = Experiment(
         api_key=COMET_APIKEY,
         project_name=comet_rq_proj[args.comet_proj],
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    loader, nlabels, mean, std = DataLoader.imagenet({'helpers_path': args.helpers_path,
+    loader, nlabels, mean, std = DataLoader.imagenet_robustbench({'helpers_path': args.helpers_path,
                                                       'data_path': args.data_path,
                                                       'batch_size': args.batch_size}
                                                      )

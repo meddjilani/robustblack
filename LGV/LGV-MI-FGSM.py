@@ -30,7 +30,7 @@ def load_model_torchvision(model_name, device, mean, std):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='resnet18')
+    parser.add_argument('--model', type=str, default='resnet50')
     parser.add_argument('--target', type=str, default= 'Standard_R50')
     parser.add_argument('--eps', type = float, default=8/255)
     parser.add_argument('--alpha', type=float,default=2/255)
@@ -42,7 +42,6 @@ if __name__ == '__main__':
     parser.add_argument("--lgv_lr", type=float, default=0.05)
     parser.add_argument('--lgv_batch_size', type=int, default=128)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
-    parser.add_argument('--train_path', type=str, default= '../dataset/Imagenet/Sample_49000')
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
     parser.add_argument('--lgv_models', type=str, default= './lgv_models')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
@@ -66,7 +65,7 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    loader, nlabels, mean, std = DataLoader.imagenet({'helpers_path': args.helpers_path,
+    loader, nlabels, mean, std = DataLoader.imagenet_robustbench({'helpers_path': args.helpers_path,
                                                       'data_path': args.data_path,
                                                       'batch_size': args.batch_size}
                                                      )
