@@ -167,7 +167,7 @@ class Bottleneck(nn.Module):
                                  device=identity.device) * random_range * 2 + (
                               1 - random_range)
 
-        out += identity
+        out += identity*perturb_var
         out = self.relu(out)
 
         return out
