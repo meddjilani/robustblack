@@ -24,7 +24,7 @@ class ImageNetSubset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         idx_image = self.image_list[idx]
         img_path = os.path.join(self.img_dir, idx_image)
-        image = Image.open(img_path)
+        image = Image.open(img_path).convert('RGB')
         label = self.class_label_map.get(idx_image.split('/')[0])
         if self.transform:
             image = self.transform(image)
@@ -38,7 +38,6 @@ class ImageFolderWithGPU(dset.ImageFolder):
 
     def __getitem__(self, index):
         sample, target = super(ImageFolderWithGPU, self).__getitem__(index)
-
         device = torch.device(self.gpu)
         sample = sample.to(device)
         target = torch.tensor(target).to(device)
