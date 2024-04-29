@@ -1,12 +1,34 @@
 import torch
-import torch.nn as nn
 import torchvision.datasets as dset
-import torch.utils.data
 import torchvision.transforms as transforms
+from PIL import Image
 import os
 import json
 import numpy as np
-from torch.utils.data import Dataset, DataLoader
+
+class ImageNetSubset(torch.utils.data.Dataset):
+    def __init__(self, img_list_file, class_label_map_file, img_dir, transform=None):
+        self.img_dir = img_dir
+        self.transform = transform
+        self.image_list = []
+        with open(img_list_file, 'r') as f:
+            for line in f:
+                img_path = line.strip()  # Extract image path
+                self.image_list.append(img_path)
+        with open(class_label_map_file, 'r') as f:
+            self.class_label_map = json.load(f)
+
+    def __len__(self):
+        return len(self.image_list)
+
+    def __getitem__(self, idx):
+        idx_image = self.image_list[idx]
+        img_path = os.path.join(self.img_dir, idx_image)
+        image = Image.open(img_path)
+        label = self.class_label_map.get(idx_image.split('/')[0])
+        if self.transform:
+            image = self.transform(image)
+        return image, label
 
 
 class ImageFolderWithGPU(dset.ImageFolder):
@@ -23,6 +45,27 @@ class ImageFolderWithGPU(dset.ImageFolder):
 
         return sample, target
 
+
+def imagenet_robustbench(state):
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+
+    transform = transforms.Compose(
+        [transforms.Resize(256),
+         transforms.CenterCrop(224),
+         transforms.ToTensor()])
+
+    dataset = ImageNetSubset(img_list_file=state['helpers_path']+'/imagenet_test_image_ids.txt',
+                             class_label_map_file=state['helpers_path']+'/imagenet_class_to_id_map.json',
+                             img_dir=state['data_path'],
+                             transform=transform)
+    test_loader = torch.utils.data.DataLoader(
+        dataset, batch_size=state['batch_size'], shuffle=False, pin_memory=True
+    )
+
+    nlabels = 1000
+
+    return test_loader, nlabels, mean, std
 
 def imagenet(state):
 
