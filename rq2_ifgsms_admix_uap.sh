@@ -1,24 +1,26 @@
 my_list=( "Liu2023Comprehensive_ConvNeXt-L" "Bai2024MixedNUTS" "Liu2023Comprehensive_Swin-L" )
 
-test_path="/mnt/data/data/mdjilani/dataset/Imagenet/Sample_1000"  # Removed leading /
+test_path="/raid/data/mdjilani/dataset/val"
 
 for seed in 42 1 10; do
   for target in "${my_list[@]}"; do
 
-    python MI-FGSM.py --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet101_2 --batch_size 64
+    python MI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 64
 
-    python DI-FGSM.py --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet101_2 --batch_size 64
+    python SGM-MI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 64
 
-    python TI-FGSM.py --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet101_2 --batch_size 64
+    python DI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 64
 
-    python VMI-FGSM.py --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet101_2 --batch_size 64
+    python TI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 64
 
-    python VNI-FGSM.py --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet101_2 --batch_size 64
+    python VMI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 64
 
-    python ADMIX.py --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet101_2 --batch_size 64
+    python VNI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 64
+
+    python ADMIX.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 64
 
     cd pytorch-gd-uap
-    python gduap.py --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet101_2 --batch_size 64
+    python train.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 64
 
     cd ..
   done
