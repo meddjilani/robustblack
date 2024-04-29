@@ -39,6 +39,7 @@ if __name__ == '__main__':
     parser.add_argument('--steps', type=int,default=10)
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
+    parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--comet_proj', default='RQ1', type=str)
@@ -60,7 +61,11 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':args.data_path, 'batch_size':args.batch_size})
+    loader, nlabels, mean, std = DataLoader.imagenet({'helpers_path': args.helpers_path,
+                                                      'data_path': args.data_path,
+                                                      'batch_size': args.batch_size}
+                                                     )
+
     if args.robust:
         source_model = load_model(args.model, dataset='imagenet', threat_model='Linf').to(device)
     else:
