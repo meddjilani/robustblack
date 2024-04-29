@@ -36,7 +36,6 @@ __all__ = [
     "wide_resnet101_2",
 ]
 
-
 def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1) -> nn.Conv2d:
     """3x3 convolution with padding"""
     return nn.Conv2d(
@@ -166,7 +165,6 @@ class Bottleneck(nn.Module):
         perturb_var = torch.rand((1, identity.size(1), 1, 1), requires_grad=False,
                                  device=identity.device) * random_range * 2 + (
                               1 - random_range)
-
         out += identity*perturb_var
         out = self.relu(out)
 
