@@ -8,10 +8,10 @@ for seed in 42 1 10; do
   for target in "${my_list[@]}"; do
 
     cd GHOST
-    python GN-MI-FGSM.py --comet_proj RQ1 --seed $seed --target $target --data_path $test_path --helpers_path $helpers_path --gpu cuda --model resnet50 --batch_size 64
+    python GN-MI-FGSM.py --eps 0.0156862745 --comet_proj RQ1 --seed $seed --target $target --data_path $test_path --helpers_path $helpers_path --gpu cuda --model resnet50 --batch_size 64
 
     cd LGV
-    python LGV-MI-FGSM.py --comet_proj RQ1 --seed $seed --target $target --data_path $test_path --helpers_path $helpers_path --gpu cuda --model resnet50 --batch_size 64 --lgv_models "/raid/data/mdjilani/seed0"
+    python LGV-MI-FGSM.py --eps 0.0156862745 --comet_proj RQ1 --seed $seed --target $target --data_path $test_path --helpers_path $helpers_path --gpu cuda --model resnet50 --batch_size 64 --lgv_models "/raid/data/mdjilani/seed0"
 
     cd ..
   done
