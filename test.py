@@ -13,6 +13,7 @@ sys.path.append(parent_dir)
 import torchvision.models as models
 from utils_robustblack import set_random_seed
 from utils_robustblack.Normalize import Normalize
+from utils_robustblack import DataLoader
 
 
 def load_model_torchvision(model_name, device, mean, std):
@@ -42,4 +43,11 @@ if __name__ == '__main__':
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 
+    loader, nlabels, mean, std = DataLoader.imagenet({'helpers_path': '',
+                                                      'data_path': '~/Desktop/ImageNet_robustbench_VAL/MINE',
+                                                      'batch_size': 1}
+                                                     )
+
+
+    print(len(loader))
 
