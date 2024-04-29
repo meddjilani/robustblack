@@ -26,6 +26,12 @@ def load_model_torchvision(model_name, device, mean, std):
     model.to(device).eval()
     return model
 
+def add_prefix(state_dict):
+    new_state_dict = state_dict.copy()
+    for k,v in state_dict.items():
+        new_state_dict["1."+k] = v
+        del new_state_dict[k]
+    return new_state_dict
 
 if __name__ == '__main__':
 
@@ -69,6 +75,12 @@ if __name__ == '__main__':
                                                       'data_path': args.data_path,
                                                       'batch_size': args.batch_size}
                                                      )
+    # train_loader, _, _, _, _ = DataLoader.imagenet_train_test({'train_path': args.train_path,
+    #                                                   'data_path': args.data_path,
+    #                                                   'train_batch_size': args.lgv_batch_size,
+    #                                                   'test_batch_size': args.batch_size,
+    #                                                   'gpu': args.gpu,
+    #                                                   })
     train_loader = None
 
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
@@ -77,19 +89,26 @@ if __name__ == '__main__':
     suc_rate_steps = 0
     images_steps = 0
 
-    loaded_models = []
     if args.robust:
         source_model = load_model(args.model, dataset='imagenet', threat_model='Linf').to(device)
     else:
-        source_model = load_model_torchvision(args.model, device, mean, std)
+        source_model = load_model_torchvision(args.model, device, mean, std).to(device)
+
     attack = torchattacks.LGV(source_model, train_loader, lr=args.lgv_lr, epochs=args.lgv_epochs,
                               nb_models_epoch=args.lgv_nb_models_epoch, wd=1e-4, n_grad=1,
                               attack_class=torchattacks.attacks.mifgsm.MIFGSM, eps=args.eps, alpha=args.alpha,
                               steps=args.steps, decay=args.decay, verbose=True)
-    for filename in os.listdir(args.lgv_models):
-        source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename))["state_dict"])
-        source_model.eval()
-        loaded_models.append(source_model)
+
+    num_lgv_models = args.lgv_nb_models_epoch * args.lgv_epochs
+    loaded_models = []
+    for i, filename in enumerate(os.listdir(args.lgv_models)):
+        if filename[-3:] == ".pt":
+            source_model.load_state_dict(add_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
+            source_model.eval()
+            loaded_models.append(source_model)
+            # if i+1 == num_lgv_models:
+            #     print("Number of required LGV models have been reached")
+            #     break
 
     attack.load_models(loaded_models)
 
