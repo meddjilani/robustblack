@@ -15,7 +15,7 @@ from robustbench.utils import load_model
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='vgg16',
+    parser.add_argument('--model', default='resnet50',
                         help='The network eg. vgg16')
     parser.add_argument('--target', type=str, default= 'Standard_R50',
                         help='target model')
@@ -35,6 +35,7 @@ def main():
                         help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
+    parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
 
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -44,24 +45,29 @@ def main():
         project_name=COMET_PROJECT_RQ2,
         workspace=COMET_WORKSPACE,
     )
+
     parameters = {'attack': 'UAP', **vars(args)}
     experiment.log_parameters(parameters)
     experiment.set_name("UAP_"+args.model+"_"+args.target)
 
     device = torch.device(args.gpu)
-    target_data_loader, _, mean, std = DataLoader.imagenet({'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':args.batch_size})
+
+    target_data_loader, _, mean, std = DataLoader.imagenet_robustbench({'helpers_path': args.helpers_path,
+                                                      'data_path': args.data_path,
+                                                      'batch_size': args.batch_size}
+                                                     )
 
     model = load_model_torchvision(args.model, device, mean, std)
 
     if args.baseline:
         print("Obtaining baseline fooling rate...")
-        baseline_fooling_rate = get_baseline_fooling_rate(model, device, disable_tqdm=True)
+        baseline_fooling_rate = get_baseline_fooling_rate(model, target_data_loader, device, disable_tqdm=True)
         print(f"Baseline fooling rate for {args.model}: {baseline_fooling_rate}")
         return
 
 
     # create a universal adversarial perturbation
-    uap = gd_universal_adversarial_perturbation(model, args.model, args.prior_type, args.batch_size, device, args.patience_interval, args.id, eps=args.eps,disable_tqdm=True)
+    uap = gd_universal_adversarial_perturbation(model, args.model, target_data_loader, args.prior_type, device, args.patience_interval, args.id, eps=args.eps,disable_tqdm=True)
 
     # perform a final evaluation
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')

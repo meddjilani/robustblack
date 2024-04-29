@@ -2,6 +2,7 @@ from comet_ml import Experiment
 import torch
 import torch.nn as nn
 from robustbench.utils import load_model, clean_accuracy
+from robustbench_ghost.utils import load_model as load_model_ghost
 import torchattacks
 import json
 import argparse
@@ -19,6 +20,7 @@ from utils_robustblack import DataLoader, set_random_seed
 from utils_robustblack.Normalize import Normalize
 
 
+
 def load_ghost_model_torchvision(model_name, device, mean, std):
     model = getattr(ghost_models, model_name)(pretrained=True)
     model = nn.Sequential(
@@ -31,7 +33,7 @@ def load_ghost_model_torchvision(model_name, device, mean, std):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='resnet18')
+    parser.add_argument('--model', type=str, default='Engstrom2019Robustness')
     parser.add_argument('--target', type=str, default= 'Standard_R50')
     parser.add_argument('--eps', type = float, default=8/255)
     parser.add_argument('--alpha', type=float,default=2/255)
@@ -67,9 +69,10 @@ if __name__ == '__main__':
                                                      )
 
     if args.robust:
-        source_model = load_model(args.model, dataset='imagenet', threat_model='Linf').to(device)
+        source_model = load_model_ghost(args.model, dataset='imagenet', threat_model='Linf').to(device)
     else:
         source_model = load_ghost_model_torchvision(args.model, device, mean, std)
+
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 

@@ -113,7 +113,7 @@ def get_fooling_rate(model, delta, data_loader, device, experiment=None, disable
 
     return flipped / total, suc_rate_steps
 
-def get_baseline_fooling_rate(model, device, eps=10/255, disable_tqdm=False):
+def get_baseline_fooling_rate(model, data_loader, device, eps=10/255, disable_tqdm=False):
     """
     Baseline fooling rate is always evaluated on ILSVRC 2012 dataset
     """
@@ -121,7 +121,6 @@ def get_baseline_fooling_rate(model, device, eps=10/255, disable_tqdm=False):
     xi_max = eps
     delta = (xi_min - xi_max) * torch.rand((1, 3, 224, 224), device=device) + xi_max
     delta.requires_grad = True
-    data_loader, _, _, _ = DataLoader.imagenet({'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':batch_size})
     fr, _ = get_fooling_rate(model, delta, data_loader, device, disable_tqdm=disable_tqdm)
     return fr
 
@@ -132,7 +131,7 @@ def get_rate_of_saturation(delta, xi):
     """
     return np.sum(np.equal(np.abs(delta), xi)) / np.size(delta)
 
-def gd_universal_adversarial_perturbation(model, model_name, train_type, batch_size, device, patience_interval, id, eps=8/255,disable_tqdm=False):
+def gd_universal_adversarial_perturbation(model, model_name, data_loader, train_type, device, patience_interval, id, eps=8/255,disable_tqdm=False):
     """
     Returns a universal adversarial perturbation tensor
     """
@@ -159,9 +158,7 @@ def gd_universal_adversarial_perturbation(model, model_name, train_type, batch_s
     print(f"Initial norm: {torch.norm(delta, p=np.inf)}")
 
     optimizer = optim.Adam([delta], lr=0.1)
-    data_loader, _, _, _ = DataLoader.imagenet({'data_path':'../dataset/Imagenet/Sample_1000', 'batch_size':batch_size})
-
-
+    filename = f"perturbations/{id}_{model_name}_{train_type}_iter={0}_fr={int(0 * 1000)}"
     for i in tqdm(range(max_iter), disable=disable_tqdm):
         iter_since_last_fooling += 1
         optimizer.zero_grad()

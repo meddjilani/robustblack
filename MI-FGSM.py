@@ -32,7 +32,7 @@ def load_model_torchvision(model_name, device, mean, std):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='resnet18')
+    parser.add_argument('--model', type=str, default='resnet50')
     parser.add_argument('--target', type=str, default= 'Standard_R50')
     parser.add_argument('--eps', type = float, default=8/255)
     parser.add_argument('--alpha', type=float,default=2/255)
@@ -42,6 +42,7 @@ if __name__ == '__main__':
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
+    parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
 
     args = parser.parse_args()
     set_random_seed(args.seed)
