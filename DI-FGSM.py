@@ -65,6 +65,7 @@ if __name__ == '__main__':
                                                       'data_path': args.data_path,
                                                       'batch_size': args.batch_size}
                                                      )
+
     source_model = load_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)

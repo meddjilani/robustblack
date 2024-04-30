@@ -59,7 +59,11 @@ if __name__ == '__main__':
 
     device = torch.device(args.gpu)
 
-    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':args.data_path, 'batch_size':args.batch_size})
+    loader, nlabels, mean, std = DataLoader.imagenet_robustbench({'helpers_path': args.helpers_path,
+                                                      'data_path': args.data_path,
+                                                      'batch_size': args.batch_size}
+                                                     )
+
     source_model = load_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
