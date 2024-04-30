@@ -16,6 +16,8 @@ from utils_robustblack import DataLoader
 #python -m pip install git+https://github.com/daisylab-bit/torchattack
 from torchattack import Admix
 from utils_robustblack.Normalize import Normalize
+import torch.nn as nn
+
 
 
 def load_model_torchvision(model_name, device, mean, std):
