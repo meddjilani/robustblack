@@ -77,11 +77,10 @@ parser.add_argument('--save_prefix', default=None, help='override save_prefix in
 parser.add_argument('--model_name', default='Wong2020Fast')
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--comet_proj', default='RQ1', type=str)
-parser.add_argument('--train_path', default='/raid/data/mdjilani/dataset/Sample_49000')
 parser.add_argument('--data_path', default='/raid/data/mdjilani/dataset/Sample_1000')
 parser.add_argument('--generator_name', default='Imagenet_Wong2020Fast_Engstrom2019Robustness_Debenedetti2022Light_XCiT-M12_untarget')
 parser.add_argument('--save_path', default='/raid/data/mdjilani/tremba_save_path')
-
+parser.add_argument('--helpers_path', type=str, default='/home/mdjilani/robustblack/utils_robustblack')
 
 args = parser.parse_args()
 set_random_seed(args.seed)
@@ -100,14 +99,13 @@ if args.save_prefix is not None:
     state['save_prefix'] = args.save_prefix
 if args.model_name is not None:
     state['model_name'] = args.model_name
-if args.train_path is not None:
-    state['train_path'] = args.train_path
 if args.data_path is not None:
     state['data_path'] = args.data_path
 if args.generator_name is not None:
     state['generator_name'] = args.generator_name
 if args.save_path is not None:
     state['save_path'] = args.save_path
+state['helpers_path'] = args.helpers_path
 
 new_state = state.copy()
 new_state['batch_size'] = 1
@@ -128,7 +126,7 @@ for key, val in weight.items():
     elif key.startswith('1.'):
         decoder_weight[key[2:]] = val
 
-dataloader, nlabels, mean, std = DataLoader.imagenet(new_state)
+dataloader, nlabels, mean, std = DataLoader.imagenet_robustbench(new_state)
 if 'OSP' in state:
     if state['source_model_name'] == 'Adv_Denoise_Resnet152':
         s_model = resnet152_denoise()
