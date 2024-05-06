@@ -66,6 +66,26 @@ def imagenet_robustbench(state):
 
     return test_loader, nlabels, mean, std
 
+def imagenet_robustbench_bases(state):
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+
+    transform = transforms.Compose(
+        [transforms.Resize(256),
+         transforms.CenterCrop(224)
+         ])
+
+    dataset = ImageNetSubset(img_list_file=state['helpers_path']+'/imagenet_test_image_ids.txt',
+                             class_label_map_file=state['helpers_path']+'/imagenet_class_to_id_map.json',
+                             img_dir=state['data_path'],
+                             transform=transform)
+    test_loader = torch.utils.data.DataLoader(
+        dataset, batch_size=state['batch_size'], shuffle=False, pin_memory=True
+    )
+
+    nlabels = 1000
+
+    return test_loader, nlabels, mean, std
 def imagenet(state):
 
     mean = np.array([0.485, 0.456, 0.406])
