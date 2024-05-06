@@ -126,7 +126,11 @@ for key, val in weight.items():
     elif key.startswith('1.'):
         decoder_weight[key[2:]] = val
 
-dataloader, nlabels, mean, std = DataLoader.imagenet_robustbench(new_state)
+dataloader, nlabels, mean, std = DataLoader.imagenet_robustbench({'helpers_path': args.helpers_path,
+                                                              'data_path': args.data_path,
+                                                              'batch_size': args.batch_size}
+                                                             )
+
 if 'OSP' in state:
     if state['source_model_name'] == 'Adv_Denoise_Resnet152':
         s_model = resnet152_denoise()
