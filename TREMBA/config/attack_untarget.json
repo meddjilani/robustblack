@@ -2,7 +2,7 @@
   "batch_size": 64,
   "train_path": "/mnt/data/data/mdjilani/dataset/Imagenet/Sample_49000",
   "data_path": "/mnt/data/data/mdjilani/dataset/Imagenet/Sample_1000",
-  "epsilon": 0.03125,
+  "epsilon": 0.0156862745,
   "margin": 5.0,
   "target": false,
   "model_name": "Densenet121",
