@@ -72,7 +72,8 @@ def imagenet_robustbench_bases(state):
 
     transform = transforms.Compose(
         [transforms.Resize(256),
-         transforms.CenterCrop(224)
+         transforms.CenterCrop(224),
+         transforms.PILToTensor() #transform PIL to tensor without scaling to 0-1
          ])
 
     dataset = ImageNetSubset(img_list_file=state['helpers_path']+'/imagenet_test_image_ids.txt',
