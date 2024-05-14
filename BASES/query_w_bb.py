@@ -55,6 +55,8 @@ def main():
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--comet_proj', default='RQ1', type=str)
     parser.add_argument("-robust", action='store_true', help="use robust models")
+    parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
+
 
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -114,7 +116,10 @@ def main():
     adv_root = Path(args.adv_root) / exp
     adv_root.mkdir(parents=True, exist_ok=True)
 
-    loader, nlabels, mean, std = DataLoader.imagenet({'train_path': '', 'data_path':args.data_path, 'batch_size':1})
+    loader, nlabels, mean, std = DataLoader.imagenet_robustbench_bases({'helpers_path': args.helpers_path,
+                                                                  'data_path': args.data_path,
+                                                                  'batch_size': 1}
+                                                                 )
 
     success_idx_list = set()
     success_idx_list_pretend = set() # untargeted success
@@ -124,6 +129,7 @@ def main():
     count_correctly_classified_images = 0
     suc_rate_steps = 0
     for im_idx, (x_test, y_test) in enumerate(loader):
+        print(f"\n im_idx: {im_idx}")
         x_test_sq_per = torch.squeeze(x_test, dim=0).permute(1,2,0)
         im_np = np.array(x_test_sq_per)
         lr_w = float(args.lr) # re-initialize
@@ -135,10 +141,13 @@ def main():
             tgt_label = gt_label
             exp_name = f"idx{im_idx}_f{gt_label}_untargeted"
 
-        pred_label = torch.argmax(victim_model(x_test.to(device)), dim=1).item()
+        # pred_label = torch.argmax(victim_model(x_test.to(device)), dim=1).item() #false due to the preprocessing required
+        tensor = x_test.float().to(device)  # Ensure the tensor has floating-point data type
+        tensor /= 255.0  # Divide by the maximum value (255 for image pixels)
+        pred_label = victim_model(tensor).argmax().item()
         if args.untargeted and gt_label != pred_label:
-            continue
             print('Image is already misclassified by victim model in UNTARGETED ATTACK')
+            continue
         else:
             count_correctly_classified_images +=1
 
@@ -151,8 +160,9 @@ def main():
         loss_wb_list = losses   # loss of optimizing wb models
         loss_bb_list = []       # loss of victim model
         print(f"{label_idx, imagenet_names[label_idx]}, loss: {loss}")
+        print(f"gt label {y_test}")
+        print(f"pred label {pred_label}")
         print(f"w: {w_np.tolist()}")
-        print(label_idx != tgt_label, label_idx,tgt_label)
 
         if args.untargeted:
             if label_idx != tgt_label:
@@ -302,7 +312,6 @@ def main():
                 loss_bb_list.append(loss)
 
 
-        print(f"im_idx: {im_idx}")
         if im_idx in success_idx_list:
             # save to txt
             info = f"im_idx: {im_idx}, iters: {query_list[-1]}, loss: {loss:.2f}, w: {w_np.squeeze().tolist()}\n"
