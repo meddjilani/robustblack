@@ -160,9 +160,6 @@ def main():
         loss_wb_list = losses   # loss of optimizing wb models
         loss_bb_list = []       # loss of victim model
         print(f"{label_idx, imagenet_names[label_idx]}, loss: {loss}")
-        print(f"gt label {y_test}")
-        print(f"pred label {pred_label}")
-        print(f"w: {w_np.tolist()}")
 
         if args.untargeted:
             if label_idx != tgt_label:
@@ -318,7 +315,7 @@ def main():
             file = open(exp_root / f'{exp}.txt', 'a')
             file.write(f"{info}")
             file.close()
-        print(f"targeted. total_success: {len(success_idx_list)}; success_rate: {len(success_idx_list)/(im_idx+1)}, avg queries: {np.mean(query_list)}")
+        # print(f"targeted. total_success: {len(success_idx_list)}; success_rate: {len(success_idx_list)/(im_idx+1)}, avg queries: {np.mean(query_list)}")
 
         if im_idx in success_idx_list_pretend:
             # save to txt
@@ -326,7 +323,7 @@ def main():
             file = open(exp_root / f'{exp}_pretend.txt', 'a')
             file.write(f"{info}")
             file.close()
-        print(f"untargeted. total_success: {len(success_idx_list_pretend)}; success_rate: {len(success_idx_list_pretend)/(im_idx+1)}, avg queries: {np.mean(query_list_pretend)}")
+        # print(f"untargeted. total_success: {len(success_idx_list_pretend)}; success_rate: {len(success_idx_list_pretend)/(im_idx+1)}, avg queries: {np.mean(query_list_pretend)}")
 
 
         # save adv image
