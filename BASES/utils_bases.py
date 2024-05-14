@@ -16,8 +16,12 @@ normalize = transforms.Compose([
 
 # we use images with size 224
 preprocess = transforms.Compose([
-        transforms.ToTensor(),
+        transforms.ToTensor(), #ToTensor normalize if applicable(PIL with defined mode + numpy with uint8 type) and also permute shape
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+
+preprocess_test = transforms.Compose([
+        transforms.ToTensor(),
         ])
 
 relu = torch.nn.ReLU()
@@ -111,6 +115,7 @@ def get_logits_probs(im, model):
         probs (numpy.ndarray): logits after softmax function
     """
     device = next(model.parameters()).device
+    # print("After .ToTensor", preprocess_test(im)[:,0,0]) # Debugging the ToTensor functionality
     im_tensor = preprocess(im).unsqueeze(0).to(device)
     logits = model(im_tensor)
     probs = softmax(logits)
