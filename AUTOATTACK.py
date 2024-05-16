@@ -42,8 +42,9 @@ if __name__ == '__main__':
 
     for num_target, target in enumerate(args.targets):
 
-        total_acc = 0
+        total_acc_rate = 0
         total_suc_rate = 0
+        total_images = 0
         total_correct_predictions = 0
         for x_test,y_test in loader:
 
@@ -53,7 +54,11 @@ if __name__ == '__main__':
             target_model.to(device)
 
             acc = clean_accuracy(target_model, x_test, y_test)
-            total_acc += acc
+            print('=======',y_test.size().item())
+            batch_images = y_test.size().item()
+            total_acc = total_acc_rate * total_images + acc * batch_images
+            total_images += batch_images
+            total_acc_rate = total_acc / total_images
 
             adversary = AutoAttack(target_model, norm='Linf', eps=4 / 255, version='custom', attacks_to_run=['apgd-ce', 'apgd-dlr'])
             adversary.device = device
@@ -67,6 +72,7 @@ if __name__ == '__main__':
                 correct_predictions = (predicted_classes == y_test).sum().item()
                 correct_batch_indices = (predicted_classes == y_test).nonzero().squeeze(-1)
 
+
             suc_rate = 1 - clean_accuracy(target_model, x_adv[correct_batch_indices,:,:,:], y_test[correct_batch_indices])
 
             #additinal check: whatever the value suc_rate would be when batch have no single correctly classified image, the total success rate should be correct
@@ -75,7 +81,7 @@ if __name__ == '__main__':
                 total_correct_predictions += correct_predictions
                 total_suc_rate = total_suc / total_correct_predictions
 
-        print(target, " Clean accuracy: %2.2f %%" % (total_acc * 100))
+        print(target, " Clean accuracy: %2.2f %%" % (total_acc_rate * 100))
         print(target, " Success rate : %2.2f %% \n" % (total_suc_rate * 100))
-        metrics = {'suc_rate': total_suc_rate, 'clean_acc': total_acc, 'target':target}
+        metrics = {'suc_rate': total_suc_rate, 'clean_acc': total_acc_rate, 'target':target}
         experiment.log_metrics(metrics, step=num_target + 1)
