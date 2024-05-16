@@ -6,7 +6,7 @@ helpers_path="/home/mdjilani/robustblack/utils_robustblack"
 for seed in 42 1 10; do
   for target in "${my_list[@]}"; do
 
-    python AUTOATTACK.py --batch_size 64 --gpu cuda --seed $seed --targets $target --device cuda --data_path $test_path --helpers_path $helpers_path
+    python AUTOATTACK.py --batch_size 64 --gpu cuda --seed $seed --targets $target --data_path $test_path --helpers_path $helpers_path
 
   done
 done
