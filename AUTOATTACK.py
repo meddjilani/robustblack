@@ -56,6 +56,8 @@ if __name__ == '__main__':
             total_acc += acc
 
             adversary = AutoAttack(target_model, norm='Linf', eps=4 / 255, version='custom', attacks_to_run=['apgd-ce', 'apgd-dlr'])
+            adversary.device = device
+            adversary.apgd.device = device
             adversary.apgd.n_restarts = 1
             x_adv = adversary.run_standard_evaluation(x_test, y_test)
 
