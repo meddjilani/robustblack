@@ -54,8 +54,8 @@ if __name__ == '__main__':
             target_model.to(device)
 
             acc = clean_accuracy(target_model, x_test, y_test)
-            print('=======',y_test.size())
-            batch_images = y_test.size()
+            print('=======',y_test.size(0))
+            batch_images = y_test.size(0)
             total_acc = total_acc_rate * total_images + acc * batch_images
             total_images += batch_images
             total_acc_rate = total_acc / total_images
