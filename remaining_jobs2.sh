@@ -1,13 +1,16 @@
-my_list=( "Wong2020Fast" "Engstrom2019Robustness" )
+my_list=( "Wong2020Fast" )
 
 test_path="/raid/data/mdjilani/dataset/val"
 helpers_path="/home/mdjilani/robustblack/utils_robustblack"
 
+exp_root="/raid/data/mdjilani/bases_exp"
+adv_root="/raid/data/mdjilani/bases_adv"
+
 for seed in 42; do
   for target in "${my_list[@]}"; do
 
-    cd TREMBA
-    python attack.py --comet_proj RQ1 --seed $seed --model_name $target --device cuda --config config/attack_untarget.json --data_path $test_path --helpers_path $helpers_path --generator_name Imagenet_VGG16_Resnet18_Squeezenet_Googlenet_untarget --save_path /raid/data/mdjilani/tremba_save_path_vanilla
+    cd BASES
+    python query_w_bb.py --eps 4 --n_wb 10  --helpers_path $helpers_path --exp_root $exp_root --adv_root $adv_root --iterw 20 --seed $seed --victim $target --data_path $test_path --gpu cuda --comet_proj RQ1 -untargeted
 
     cd ..
   done
