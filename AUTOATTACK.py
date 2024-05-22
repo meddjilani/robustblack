@@ -14,8 +14,8 @@ from utils_robustblack import DataLoader, set_random_seed
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--targets', nargs='+', default=['Wong2020Fast', 'Engstrom2019Robustness'], help='target models to be evaluated')
-    parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--targets', nargs='+', default=['Bai2024MixedNUTS'], help='target models to be evaluated')
+    parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument("--gpu", type=str, default='mps', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
