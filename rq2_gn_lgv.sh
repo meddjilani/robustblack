@@ -4,7 +4,7 @@ test_path="/raid/data/mdjilani/dataset/val"
 helpers_path="/home/mdjilani/robustblack/utils_robustblack"
 
 
-for seed in 42 1 10; do
+for seed in 42; do
   for target in "${my_list[@]}"; do
 
     cd LGV
