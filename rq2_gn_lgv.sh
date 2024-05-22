@@ -1,4 +1,4 @@
-my_list=( "Liu2023Comprehensive_ConvNeXt-L" "Bai2024MixedNUTS" "Liu2023Comprehensive_Swin-L" )
+my_list=( "Wong2020Fast" "Engstrom2019Robustness" )
 
 test_path="/raid/data/mdjilani/dataset/val"
 helpers_path="/home/mdjilani/robustblack/utils_robustblack"
