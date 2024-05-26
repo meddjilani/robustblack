@@ -116,7 +116,8 @@ def get_logits_probs(im, model):
     """
     device = next(model.parameters()).device
     # print("After .ToTensor", preprocess_test(im)[:,0,0]) # Debugging the ToTensor functionality
-    im_tensor = preprocess(im).unsqueeze(0).to(device)
+
+    im_tensor = torch.from_numpy(im).permute(2, 0, 1).unsqueeze(0).to(device)
     logits = model(im_tensor)
     probs = softmax(logits)
     logits = logits.detach().cpu().numpy().squeeze() # convert torch tensor to numpy array
