@@ -11,7 +11,6 @@ import argparse
 from pathlib import Path
 
 import torch
-import torch
 from robustbench.utils import load_model
 import numpy as np
 import matplotlib
