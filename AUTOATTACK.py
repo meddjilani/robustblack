@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser.add_argument('--targets', nargs='+', default=['Bai2024MixedNUTS'], help='target models to be evaluated')
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument("--gpu", type=str, default='mps', help="GPU ID: 0,1")
-    parser.add_argument('--seed', default=42, type=int)d
+    parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
 
