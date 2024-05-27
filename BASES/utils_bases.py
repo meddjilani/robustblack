@@ -145,7 +145,7 @@ def get_loss(im, model, tgt_label, loss_name):
     logits, _ = get_logits_probs(im, model)
     logits = torch.tensor(logits)
     tgt_label = torch.tensor(tgt_label)
-    loss = loss_fn(logits, tgt_label)
+    loss, _, _  = loss_fn(logits, tgt_label)
     return loss
 
 
@@ -195,7 +195,7 @@ def loss_cw(logits, tgt_label, margin=200, targeted=True):
         loss = torch.max(best_other_logit - tgt_label_logit, -k)
     else:
         loss = torch.max(tgt_label_logit - best_other_logit, -k)
-    return loss
+    return loss, tgt_label_logit, best_other_logit
 
 
 class CE_loss(nn.Module):
@@ -247,10 +247,10 @@ def get_label_loss(im, model, tgt_label, loss_name, targeted=True):
     pred_label = logits.argmax()
     logits = torch.tensor(logits)
     tgt_label = torch.tensor(tgt_label)
-    loss = loss_fn(logits, tgt_label)
+    loss, tgt_logit, best_other_logit = loss_fn(logits, tgt_label)
     # get top 5 labels
     top5 = logits.argsort()[-5:]
-    return pred_label, loss, top5
+    return pred_label, loss, top5, tgt_logit, best_other_logit
 
 
 def get_adv(im, adv, target, w, pert_machine, bound, eps, n_iters, alpha, algo='pgd', fuse='loss', untargeted=False, intermediate=False, loss_name='ce'):
@@ -287,14 +287,14 @@ def get_adv(im, adv, target, w, pert_machine, bound, eps, n_iters, alpha, algo='
         outputs = [model(input_tensor) for model in pert_machine]
 
         if fuse == 'loss':
-            loss = sum([w[idx] * loss_fn(outputs[idx],target) for idx in range(n_wb)])
+            loss = sum([w[idx] * loss_fn(outputs[idx],target)[0] for idx in range(n_wb)])
         elif fuse == 'prob':
             target_onehot = F.one_hot(target, 1000)
             prob_weighted = torch.sum(torch.cat([w[idx] * softmax(outputs[idx]) for idx in range(n_wb)], 0), dim=0, keepdim=True)
             loss = - torch.log(torch.sum(target_onehot*prob_weighted))
         elif fuse == 'logit':
             logits_weighted = sum([w[idx] * outputs[idx] for idx in range(n_wb)])
-            loss = loss_fn(logits_weighted,target)
+            loss, _, _ = loss_fn(logits_weighted,target)
 
         losses.append(loss.item())
         loss.backward()
