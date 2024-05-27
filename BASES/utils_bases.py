@@ -189,7 +189,7 @@ def loss_cw(logits, tgt_label, margin=200, targeted=True):
     onehot_logits = torch.zeros_like(logits)
     onehot_logits[tgt_label] = logits[tgt_label]
     other_logits = logits - onehot_logits
-    other_logits[tgt_label] = float("-inf") #fix original bases bug in loss cw
+    other_logits[tgt_label] = float("-inf") #fix bug in loss cw from bases
     best_other_logit = torch.max(other_logits)
     tgt_label_logit = logits[tgt_label]
     if targeted:
