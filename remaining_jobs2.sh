@@ -1,4 +1,4 @@
-my_list=( "Liu2023Comprehensive_Swin-B" )
+my_list=( "Salman2020Do_R50" )
 
 test_path="/raid/data/mdjilani/dataset/val"
 helpers_path="/home/mdjilani/robustblack/utils_robustblack"
