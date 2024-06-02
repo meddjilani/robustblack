@@ -155,7 +155,6 @@ def main():
         w_np = np.array([1 for _ in range(len(wb))]) / len(wb)
         adv_np, losses = get_adv_np(im_np, tgt_label, w_np, wb, bound, eps, n_iters, alpha, fuse=fuse, untargeted=args.untargeted, loss_name=loss_name, adv_init=None)
         label_idx, loss, _, tgt_logit, best_other_logit = get_label_loss(adv_np/255, victim_model, tgt_label, loss_name, targeted = not args.untargeted)
-        print("tgt_logit, best_other_logit:", tgt_logit.item(), ", ", best_other_logit.item() )
         n_query = 1
         w_list = []
         loss_wb_list = losses   # loss of optimizing wb models
@@ -202,7 +201,6 @@ def main():
                 w_np_temp_plus[idx_w] += lr_w
                 adv_np_plus, losses_plus = get_adv_np(im_np, tgt_label, w_np_temp_plus, wb, bound, eps, n_iters, alpha, fuse=fuse, untargeted=args.untargeted, loss_name=loss_name, adv_init=adv_np)
                 label_plus, loss_plus, _, tgt_logit, best_other_logit = get_label_loss(adv_np_plus/255, victim_model, tgt_label, loss_name, targeted = not args.untargeted)
-                print("tgt_logit, best_other_logit:", tgt_logit.item(), ", ", best_other_logit.item())
                 n_query += 1
                 print(f"iter: {n_query}, {idx_w} +, {label_plus, imagenet_names[label_plus]}, loss: {loss_plus}")
 
@@ -246,7 +244,6 @@ def main():
                 w_np_temp_minus[idx_w] -= lr_w
                 adv_np_minus, losses_minus = get_adv_np(im_np, tgt_label, w_np_temp_minus, wb, bound, eps, n_iters, alpha, fuse=fuse, untargeted=args.untargeted, loss_name=loss_name, adv_init=adv_np)
                 label_minus, loss_minus, _, tgt_logit, best_other_logit = get_label_loss(adv_np_minus/255, victim_model, tgt_label, loss_name, targeted = not args.untargeted)
-                print("tgt_logit, best_other_logit:", tgt_logit.item(), ", ", best_other_logit.item())
                 n_query += 1
                 print(f"iter: {n_query}, {idx_w} -, {label_minus, imagenet_names[label_minus]}, loss: {loss_minus}")
 
