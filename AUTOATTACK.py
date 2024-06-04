@@ -72,7 +72,7 @@ if __name__ == '__main__':
                 correct_predictions = (predicted_classes == y_test).sum().item()
                 correct_batch_indices = (predicted_classes == y_test).nonzero().squeeze(-1)
 
-            if acc==0:
+            if acc!=0:
                 suc_rate = 1 - clean_accuracy(target_model, x_adv[correct_batch_indices,:,:,:], y_test[correct_batch_indices])
             else:
                 suc_rate = 0
