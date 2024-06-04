@@ -93,8 +93,10 @@ if __name__ == '__main__':
             predicted_classes = torch.argmax(predictions, dim=1)
             correct_predictions = (predicted_classes == y_test).sum().item()
             correct_batch_indices = (predicted_classes == y_test).nonzero().squeeze(-1)
-        
-        suc_rate = 1 - clean_accuracy(target_model, adv_images_ADMIX[correct_batch_indices,:,:,:], y_test[correct_batch_indices])
+        if acc==0:
+            suc_rate = 1 - clean_accuracy(target_model, adv_images_ADMIX[correct_batch_indices,:,:,:], y_test[correct_batch_indices])
+        else:
+            suc_rate = 0
         print(args.target, 'Success Rate: %2.2f %%'%(suc_rate*100))
         if correct_batch_indices.size(0) != 0:
             suc_rate_steps = suc_rate_steps*images_steps + suc_rate*correct_batch_indices.size(0)

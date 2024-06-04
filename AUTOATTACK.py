@@ -72,8 +72,10 @@ if __name__ == '__main__':
                 correct_predictions = (predicted_classes == y_test).sum().item()
                 correct_batch_indices = (predicted_classes == y_test).nonzero().squeeze(-1)
 
-
-            suc_rate = 1 - clean_accuracy(target_model, x_adv[correct_batch_indices,:,:,:], y_test[correct_batch_indices])
+            if acc==0:
+                suc_rate = 1 - clean_accuracy(target_model, x_adv[correct_batch_indices,:,:,:], y_test[correct_batch_indices])
+            else:
+                suc_rate = 0
 
             #additinal check: whatever the value suc_rate would be when batch have no single correctly classified image, the total success rate should be correct
             if correct_predictions != 0:
