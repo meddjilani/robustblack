@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('--lgv_epochs', type=int, default=5)
     parser.add_argument('--lgv_nb_models_epoch', type=int, default=2)
     parser.add_argument("--lgv_lr", type=float, default=0.05)
-    parser.add_argument('--lgv_batch_size', type=int, default=128)
+    parser.add_argument('--lgv_batch_size', type=int, default=64)
     parser.add_argument('--train_path', type=str, default= '/raid/data/mdjilani/dataset/Imagenet/Sample_49000')
     parser.add_argument('--save_models', type=str, default= '/raid/data/mdjilani/')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
