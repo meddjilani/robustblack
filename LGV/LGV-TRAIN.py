@@ -28,8 +28,8 @@ def load_model_torchvision(model_name, device, mean, std):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='resnet18')
-    parser.add_argument('--eps', type = float, default=8/255)
+    parser.add_argument('--model', type=str, default='Liu2023Comprehensive_Swin-B')
+    parser.add_argument('--eps', type = float, default=4/255)
     parser.add_argument('--alpha', type=float,default=2/255)
     parser.add_argument('--decay', type=float,default= 1.0)
     parser.add_argument('--steps', type=int,default=10)
@@ -37,8 +37,8 @@ if __name__ == '__main__':
     parser.add_argument('--lgv_nb_models_epoch', type=int, default=2)
     parser.add_argument("--lgv_lr", type=float, default=0.05)
     parser.add_argument('--lgv_batch_size', type=int, default=128)
-    parser.add_argument('--train_path', type=str, default= '/mnt/data/data/mdjilani/dataset/Imagenet/Sample_49000')
-    parser.add_argument('--save_models', type=str, default= '/mnt/data/data/mdjilani/')
+    parser.add_argument('--train_path', type=str, default= '/raid/data/mdjilani/dataset/Imagenet/Sample_49000')
+    parser.add_argument('--save_models', type=str, default= '/raid/data/mdjilani/')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument("-robust", action='store_true', help="use robust models")
