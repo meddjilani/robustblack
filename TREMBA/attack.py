@@ -1,7 +1,6 @@
 from comet_ml import Experiment
 import argparse
 import torchvision.models as models
-import os
 import json
 from utils import *
 from FCN import *
@@ -10,6 +9,7 @@ from imagenet_model.Resnet import resnet152_denoise, resnet101_denoise
 from robustbench.utils import load_model
 
 import os
+from PIL import Image
 import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
@@ -71,12 +71,12 @@ def EmbedBA(function, encoder, decoder, image, label, config, latent=None):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', default='config.json', help='config file')
+parser.add_argument('--config', default='config/attack_untarget.json', help='config file')
 parser.add_argument('--device', type=str, default='cuda:0', help="GPU ID: 0,1")
 parser.add_argument('--save_prefix', default=None, help='override save_prefix in config file')
 parser.add_argument('--model_name', default='Wong2020Fast')
 parser.add_argument('--seed', default=42, type=int)
-parser.add_argument('--comet_proj', default='RQ1', type=str)
+parser.add_argument('--comet_proj', default='RQ3', type=str)
 parser.add_argument('--data_path', default='/raid/data/mdjilani/dataset/Sample_1000')
 parser.add_argument('--generator_name', default='Imagenet_Wong2020Fast_Engstrom2019Robustness_Debenedetti2022Light_XCiT-M12_untarget')
 parser.add_argument('--save_path', default='/raid/data/mdjilani/tremba_save_path')
@@ -170,6 +170,8 @@ count_total = 0
 if not os.path.exists(state['save_path']):
     os.mkdir(state['save_path'])
 
+adversarial_folder = "/raid/data/mdjilani/adversarials_tremba"
+os.makedirs(adversarial_folder, exist_ok=True)
 for i, (images, labels) in enumerate(dataloader):
     images = images.to(device)
     labels = int(labels)
@@ -210,6 +212,13 @@ for i, (images, labels) in enumerate(dataloader):
         metrics = {'suc_rate_steps': float(count_success) / float(count_total), 'suc_rate': int(success),
                    'queries_steps': F.get_average_successful(), 'queries_steps_all_images': F.get_average()}
         experiment.log_metrics(metrics, step=count_total)
+
+        image_np = images.squeeze().permute(1, 2, 0).cpu().numpy()
+        image_np = image_np * 255
+        image_np = image_np.astype(np.uint8)
+        adv_path = os.path.join(adversarial_folder, f"{i}_{labels}_{correct}.png")
+        adv_png = Image.fromarray(image_np)
+        adv_png.save(adv_path)
 
 success_rate = float(count_success) / float(count_total)
 if state['target']:
