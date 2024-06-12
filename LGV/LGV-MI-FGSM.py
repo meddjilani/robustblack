@@ -15,7 +15,8 @@ from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_RQ1, COMET_P
 import torchvision.models as models
 from utils_robustblack import DataLoader, set_random_seed
 from utils_robustblack.Normalize import Normalize
-
+import numpy as np
+from PIL import Image
 
 def load_model_torchvision(model_name, device, mean, std):
     model = getattr(models, model_name)(pretrained=True)
@@ -143,3 +144,16 @@ if __name__ == '__main__':
             suc_rate_steps = suc_rate_steps/images_steps
         metrics = {'suc_rate_steps':suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate, 'target_correct_pred': correct_predictions}
         experiment.log_metrics(metrics, step=batch_ndx+1)
+
+        adversarial_folder = "/raid/data/mdjilani/lgv_remote"
+        os.makedirs(adversarial_folder, exist_ok=True)
+        for im_idx, image_tensor in enumerate(adv_images_LGV[correct_batch_indices, :, :, :]):
+            image_np = image_tensor.permute(1, 2, 0).cpu().numpy()
+            image_np = image_np * 255
+            image_np = image_np.astype(np.uint8)
+            gt_label = y_test[correct_batch_indices][im_idx]
+
+            adv_path = os.path.join(adversarial_folder, f"{batch_ndx}_{im_idx}_{gt_label}.png")
+
+            adv_png = Image.fromarray(image_np)
+            adv_png.save(adv_path)
