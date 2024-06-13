@@ -28,6 +28,7 @@ def load_model_torchvision(model_name, device, mean, std):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+
     parser.add_argument('--model', type=str, default='Liu2023Comprehensive_Swin-B')
     parser.add_argument('--eps', type = float, default=4/255)
     parser.add_argument('--alpha', type=float,default=2/255)
@@ -55,11 +56,11 @@ if __name__ == '__main__':
                                                       })
     if args.robust:
         source_model = load_model(args.model, dataset = 'imagenet', threat_model = 'Linf').to(device)
-        path_save_models = args.save_models + 'lgv_models_robust'
+        path_save_models = args.save_models + 'lgv_models_robust' + args.model
         
     else:
         source_model = load_model_torchvision(args.model, device, mean, std)
-        path_save_models = args.save_models + 'lgv_models'
+        path_save_models = args.save_models + 'lgv_models' + args.model
         
     attack = torchattacks.LGV(source_model, train_loader, lr=args.lgv_lr, epochs=args.lgv_epochs,
                               nb_models_epoch=args.lgv_nb_models_epoch, wd=1e-4, n_grad=1,
