@@ -12,7 +12,7 @@
   "target": false,
 
   "save_suffix": "",
-  "model_name": ["Wong2020Fast", "Engstrom2019Robustness", "Debenedetti2022Light_XCiT-M12"],
+  "model_name": ["Liu2023Comprehensive_Swin-B", "Liu2023Comprehensive_ConvNeXt-B"],
   "margin": 200.0,
   "log_interval": 5
 }
