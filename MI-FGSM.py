@@ -80,9 +80,7 @@ if __name__ == '__main__':
 
 
         acc = clean_accuracy(target_model, x_test, y_test)
-        rob_acc = clean_accuracy(target_model, adv_images_MI, y_test)
         print(args.target, 'Clean Acc: %2.2f %%'%(acc*100))
-        print(args.target, 'Robust Acc: %2.2f %%'%(rob_acc*100))
 
         with torch.no_grad():
             predictions = target_model(x_test)
@@ -91,6 +89,8 @@ if __name__ == '__main__':
             correct_batch_indices = (predicted_classes == y_test).nonzero().squeeze(-1)
         
         suc_rate = 1 - clean_accuracy(target_model, adv_images_MI[correct_batch_indices,:,:,:], y_test[correct_batch_indices])
+        rob_acc = acc*(1-suc_rate)
+        print(args.target, 'Robust Acc: %2.2f %%'%(acc*(1-suc_rate)*100))
         print(args.target, 'Success Rate: %2.2f %%'%(suc_rate*100))
         if correct_batch_indices.size(0) != 0:
             suc_rate_steps = suc_rate_steps*images_steps + suc_rate*correct_batch_indices.size(0)
