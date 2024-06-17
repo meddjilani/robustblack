@@ -25,7 +25,7 @@ from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_TRAIN
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--device', type=str, default='cuda:0')
-    parser.add_argument('--config', default='config_joint_train_Imagenet_GAN.json', help='config file')
+    parser.add_argument('--config', default='config/train_untarget.json', help='config file')
     parser.add_argument("-robust", action='store_true', help="use robust models")
     parser.add_argument('--generator_path', default='/raid/data/mdjilani/G_weight', help='config file')
 
