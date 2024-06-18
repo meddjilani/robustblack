@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
     suc_rate_steps = 0
     images_steps = 0
+    correct_adversarials_steps = 0
     for batch_ndx, (x_test, y_test) in enumerate(loader):
 
         x_test, y_test = x_test.to(device), y_test.to(device)
@@ -87,11 +88,8 @@ if __name__ == '__main__':
         attack = torchattacks.MIFGSM(source_model, eps=args.eps, alpha=args.alpha, steps=args.steps, decay=args.decay)
         adv_images_GN_MI = attack(x_test, y_test)
 
-
         acc = clean_accuracy(target_model, x_test, y_test)
-        rob_acc = clean_accuracy(target_model, adv_images_GN_MI, y_test)
         print(args.target, 'Clean Acc: %2.2f %%'%(acc*100))
-        print(args.target, 'Robust Acc: %2.2f %%'%(rob_acc*100))
 
         with torch.no_grad():
             predictions = target_model(x_test)
@@ -100,15 +98,19 @@ if __name__ == '__main__':
             correct_batch_indices = (predicted_classes == y_test).nonzero().squeeze(-1)
         
         suc_rate = 1 - clean_accuracy(target_model, adv_images_GN_MI[correct_batch_indices,:,:,:], y_test[correct_batch_indices])
+        rob_acc = acc*(1-suc_rate)
+        print(args.target, 'Robust Acc: %2.2f %%'%(acc*(1-suc_rate)*100))
         print(args.target, 'Success Rate: %2.2f %%'%(suc_rate*100))
         if correct_batch_indices.size(0) != 0:
             suc_rate_steps = suc_rate_steps*images_steps + suc_rate*correct_batch_indices.size(0)
             images_steps += correct_batch_indices.size(0)
-            suc_rate_steps = suc_rate_steps/images_steps
-        metrics = {'suc_rate_steps':suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate, 'target_correct_pred': correct_predictions}
+            correct_adversarials_steps += suc_rate * correct_batch_indices.size(0) # if division is the reason for success rate difference
+            suc_rate_steps = suc_rate_steps / images_steps
+        metrics = {'correct_advs_steps':correct_adversarials_steps, 'suc_rate_steps': suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate,
+                   'target_correct_pred': correct_predictions}
         experiment.log_metrics(metrics, step=batch_ndx+1)
 
-        adversarial_folder = "/raid/data/mdjilani/adversarials"
+        adversarial_folder = "/raid/data/mdjilani/ghost_adversarials"
         os.makedirs(adversarial_folder, exist_ok=True)
         for im_idx, image_tensor in enumerate(adv_images_GN_MI[correct_batch_indices,:,:,:]):
             image_np = image_tensor.permute(1, 2, 0).cpu().numpy()
