@@ -110,7 +110,7 @@ if __name__ == '__main__':
                    'target_correct_pred': correct_predictions}
         experiment.log_metrics(metrics, step=batch_ndx+1)
 
-        adversarial_folder = "/raid/data/mdjilani/ghost_adversarials"
+        adversarial_folder = "/raid/data/mdjilani/ghost_adversarials_"+str(args.target)
         os.makedirs(adversarial_folder, exist_ok=True)
         for im_idx, image_tensor in enumerate(adv_images_GN_MI[correct_batch_indices,:,:,:]):
             image_np = image_tensor.permute(1, 2, 0).cpu().numpy()
