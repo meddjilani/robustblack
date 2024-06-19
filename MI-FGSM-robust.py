@@ -34,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--decay', type=float,default= 1.0)
     parser.add_argument('--steps', type=int,default=10)
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
+    parser.add_argument("--gpu", type=str, default='cuda', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--data_path', type=str, default= '/raid/data/mdjilani/dataset/val')
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
@@ -60,6 +60,7 @@ if __name__ == '__main__':
                                                      )
 
     source_model = load_model(args.model, dataset = 'imagenet', threat_model = 'Linf')
+    source_model.to(device)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 
