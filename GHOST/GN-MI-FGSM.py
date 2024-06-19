@@ -70,7 +70,7 @@ if __name__ == '__main__':
                                                      )
 
     if args.robust:
-        source_model = load_model(args.model, dataset='imagenet', threat_model='Linf').to(device)
+        source_model = load_model_ghost(args.model, dataset='imagenet', threat_model='Linf').to(device)
     else:
         source_model = load_ghost_model_torchvision(args.model, device, mean, std)
 
