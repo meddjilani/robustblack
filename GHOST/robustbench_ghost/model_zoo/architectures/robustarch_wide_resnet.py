@@ -504,11 +504,18 @@ class BottleneckBlock(nn.Module):
             self.last_activation = None
 
     def forward(self, x: Tensor) -> Tensor:
+        random_range = 0.22
         if self.proj is not None:
-            x = self.proj(x) + self.F(x)
+            perturb_var = torch.rand((1, self.proj(x).size(1), 1, 1), requires_grad=False,
+                                     device=self.proj(x).device) * random_range * 2 + (
+                                  1 - random_range)
+            x = self.proj(x) * perturb_var + self.F(x)
         else:
-            x = x + self.F(x)
-
+            perturb_var = torch.rand((1, x.size(1), 1, 1), requires_grad=False,
+                                     device=x.device) * random_range * 2 + (
+                                  1 - random_range)
+            x = x * perturb_var + self.F(x)
+        print(perturb_var.shape)
         if self.last_activation is not None:
             return self.last_activation(x)
         else:
