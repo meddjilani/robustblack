@@ -102,7 +102,7 @@ class BasicBlock(nn.Module):
         perturb_var = torch.rand((1, identity.size(1), 1, 1), requires_grad=False,
                                  device=identity.device) * random_range * 2 + (
                               1 - random_range)
-
+        print(perturb_var.shape)
         out += identity * perturb_var
         out = self.relu(out)
 
@@ -165,6 +165,7 @@ class Bottleneck(nn.Module):
         perturb_var = torch.rand((1, identity.size(1), 1, 1), requires_grad=False,
                                  device=identity.device) * random_range * 2 + (
                               1 - random_range)
+        print(perturb_var.shape)
         out += identity*perturb_var
         out = self.relu(out)
 
