@@ -28,6 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', default='config/train_untarget.json', help='config file')
     parser.add_argument("-robust", action='store_true', help="use robust models")
     parser.add_argument('--generator_path', default='/raid/data/mdjilani/G_weight', help='config file')
+    parser.add_argument('--resume', default=None, type=str, help='path to the saved generator to resume training')
 
     args = parser.parse_args()
     experiment = Experiment(
@@ -104,6 +105,20 @@ if __name__ == '__main__':
     else:
         save_name = "Imagenet_{}{}_untarget.pytorch".format("_".join(state['model_name']), state['save_suffix'])
 
+    #resume from checkpoint
+    start_epoch = 0
+    best_success = 0.0
+    if args.resume:
+        print('---------RESUME TRAINING---------')
+        checkpoint = torch.load(args.resume)
+        model.module.load_state_dict(checkpoint['model_state_dict'])
+        optimizer_G.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler_G.load_state_dict(checkpoint['scheduler_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        best_success = checkpoint['best_success']
+        print(f"Resumed from checkpoint: {args.resume}")
+    #end resume from checkpoint
+
     def train():
         model.train()
 
@@ -157,8 +172,8 @@ if __name__ == '__main__':
         for i in range(len(state['test_successes'])):
             state['test_success'] += state['test_successes'][i]/len(state['test_successes'])
 
-    best_success = 0.0
-    for epoch in range(state['epochs']):
+
+    for epoch in range(start_epoch, state['epochs']):
         scheduler_G.step()
         state['epoch'] = epoch
         train()
@@ -172,5 +187,12 @@ if __name__ == '__main__':
         experiment.log_metrics({'test_success':state['test_success']}, step=epoch)
         save_generator = Path(args.generator_path)
         save_generator.mkdir(parents=True, exist_ok=True)
-        torch.save(model.module.state_dict(), os.path.join(save_generator, save_name))
+
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.module.state_dict(),
+            'optimizer_state_dict': optimizer_G.state_dict(),
+            'scheduler_state_dict': scheduler_G.state_dict(),
+            'best_success': best_success
+        }, os.path.join(save_generator, save_name))
         print("epoch {}, Current success: {}, Best success: {}".format(epoch, state['test_success'], best_success))
