@@ -1,3 +1,6 @@
+#cometml runs
+.cometml-runs/
+
 #user name email
 .gitconfig
 
