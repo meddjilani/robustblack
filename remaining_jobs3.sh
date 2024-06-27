@@ -1,4 +1,4 @@
-my_list=( "Liu2023Comprehensive_ConvNeXt-L" )
+my_list=( "Liu2023Comprehensive_Swin-L" )
 
 test_path="/raid/data/mdjilani/dataset/val"
 helpers_path="/home/mdjilani/robustblack/utils_robustblack"
@@ -10,7 +10,7 @@ for seed in 42; do
   for target in "${my_list[@]}"; do
 
     cd BASES
-    python query_w_bb.py --eps 4 --models Liu2023Comprehensive_Swin-B Liu2023Comprehensive_ConvNeXt-B --helpers_path $helpers_path --exp_root $exp_root --adv_root $adv_root --iterw 20 --seed $seed --victim $target --data_path $test_path --gpu cuda --comet_proj RQ3 -robust -untargeted
+    python query_w_bb.py --eps 4 --models Liu2023Comprehensive_Swin-B Peng2023Robust --helpers_path $helpers_path --exp_root $exp_root --adv_root $adv_root --iterw 20 --seed $seed --victim $target --data_path $test_path --gpu cuda --comet_proj RQ3 -robust -untargeted
 
     cd ..
   done
