@@ -120,7 +120,7 @@ weight = torch.load(os.path.join("G_weight", state['generator_name']+".pytorch")
 
 encoder_weight = {}
 decoder_weight = {}
-for key, val in weight.items():
+for key, val in weight['model_state_dict'].items():
     if key.startswith('0.'):
         encoder_weight[key[2:]] = val
     elif key.startswith('1.'):
