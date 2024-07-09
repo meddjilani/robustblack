@@ -13,7 +13,7 @@ sys.path.append(parent_dir)
 import torchvision.models as models
 from utils_robustblack import DataLoader, set_random_seed
 from utils_robustblack.Normalize import Normalize
-from utils_robustblack.lgv import LGV
+from utils_robustblack.lgv_robust import LGV
 
 from robustbench.utils import load_model
 
