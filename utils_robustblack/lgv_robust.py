@@ -110,7 +110,6 @@ class LGV(Attack):
                     input = input.to("cuda", non_blocking=True)
                     target = target.to("cuda", non_blocking=True)
 
-                print(self._normalization_applied)
                 attack = PGD(self.model)
                 input_adversarial = attack(input, target)
 
