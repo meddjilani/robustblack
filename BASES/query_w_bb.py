@@ -180,7 +180,7 @@ def main():
                     queries.append(n_query)
                 else:
                     suc_rate = 0
-                metrics = {'suc_rate_steps': suc_rate_steps/im_idx+1, 'suc_rate': suc_rate,
+                metrics = {'suc_rate_steps': suc_rate_steps/(im_idx+1), 'suc_rate': suc_rate,
                        'queries_steps': np.mean(queries)}
 
             # pretend
@@ -224,7 +224,7 @@ def main():
                             queries.append(n_query)
                         else:
                             suc_rate = 0
-                        metrics = {'suc_rate_steps': suc_rate_steps / im_idx + 1, 'suc_rate': suc_rate,
+                        metrics = {'suc_rate_steps': suc_rate_steps / (im_idx + 1), 'suc_rate': suc_rate,
                                    'queries_steps': np.mean(queries)}
 
                     # pretend
@@ -267,7 +267,7 @@ def main():
                             queries.append(n_query)
                         else:
                             suc_rate = 0
-                        metrics = {'suc_rate_steps': suc_rate_steps / im_idx + 1, 'suc_rate': suc_rate,
+                        metrics = {'suc_rate_steps': suc_rate_steps / (im_idx + 1), 'suc_rate': suc_rate,
                                    'queries_steps': np.mean(queries)}
 
                     # pretend
