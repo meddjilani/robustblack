@@ -117,13 +117,13 @@ class LGV(Attack):
                 pred = self.get_logits(input)
                 loss_clean = loss_fn(pred, target)
 
-                if self.train_mode = 'adv_train':
+                if self.train_mode == 'adv_train':
                     attack = PGD(self.model)
                     input_adversarial = attack(input, target)
                     pred_adversarial = self.get_logits(input_adversarial)
                     loss_adversarial = loss_fn(pred_adversarial, target)
                     loss = loss_clean + loss_adversarial
-                elif self.train_mode = 'know_dist':
+                elif self.train_mode == 'know_dist':
                     soft_pred = self.model_teacher(inputs)
                     T = 2.0
                     soft_prob = F.softmax(soft_pred / T, dim=1)
