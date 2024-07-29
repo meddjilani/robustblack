@@ -66,7 +66,7 @@ class LGV(Attack):
         n_grad=1,
         verbose=True,
         attack_class=BIM,
-        train_mode = 'adv_train'
+        train_mode = 'adv_train',
         **kwargs,
     ):
         model = copy.deepcopy(model)  # deep copy the model to train it
