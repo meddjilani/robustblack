@@ -59,7 +59,7 @@ if __name__ == '__main__':
                                                       })
     if args.robust:
         source_model = load_model(args.model, dataset = 'imagenet', threat_model = 'Linf').to(device)
-        path_save_models = args.save_models + 'lgv_robust_models_robust' + args.model
+        path_save_models = args.save_models + 'lgv_robust_models_robust' + args.model + "_" + args.train_mode
         
     else:
         source_model = load_model_torchvision(args.model, device, mean, std)
