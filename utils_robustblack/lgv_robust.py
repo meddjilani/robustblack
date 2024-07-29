@@ -8,6 +8,7 @@ from random import shuffle, sample
 from torchattacks import PGD
 from torchattacks.attack import Attack
 from torchattacks.attacks.bim import BIM
+import torch.nn.functional as F
 
 # fail-safe import of tqdm
 try:
@@ -65,9 +66,11 @@ class LGV(Attack):
         n_grad=1,
         verbose=True,
         attack_class=BIM,
+        train_mode = 'adv_train'
         **kwargs,
     ):
         model = copy.deepcopy(model)  # deep copy the model to train it
+        self.model_teacher = copy.deepcopy(model)
         super().__init__("LGV", model)
         self.trainloader = trainloader
         self.lr = lr
@@ -77,6 +80,7 @@ class LGV(Attack):
         self.n_grad = n_grad
         self.order = "shuffle"
         self.attack_class = attack_class
+        self.train_mode = train_mode
         self.verbose = verbose
         self.kwargs_att = kwargs
         if not isinstance(lr, float) or lr < 0:
@@ -95,6 +99,7 @@ class LGV(Attack):
         """
         given_training = self.model.training
         self.model.train()
+        self.model_teacher.eval()
         optimizer = torch.optim.SGD(
             self.model.parameters(), lr=self.lr, momentum=0.9, weight_decay=self.wd
         )
@@ -109,15 +114,23 @@ class LGV(Attack):
                 if torch.cuda.is_available():
                     input = input.to("cuda", non_blocking=True)
                     target = target.to("cuda", non_blocking=True)
-
-                attack = PGD(self.model)
-                input_adversarial = attack(input, target)
-
                 pred = self.get_logits(input)
-                pred_adversarial = self.get_logits(input_adversarial)
                 loss_clean = loss_fn(pred, target)
-                loss_adversarial = loss_fn(pred_adversarial, target)
-                loss = loss_clean + loss_adversarial
+
+                if train_mode = 'adv_train':
+                    attack = PGD(self.model)
+                    input_adversarial = attack(input, target)
+                    pred_adversarial = self.get_logits(input_adversarial)
+                    loss_adversarial = loss_fn(pred_adversarial, target)
+                    loss = loss_clean + loss_adversarial
+                elif train_mode = 'know_dist':
+                    soft_pred = self.model_teacher(inputs)
+                    T = 2.0
+                    soft_prob = F.softmax(soft_pred / T, dim=1)
+                    hard_prob = F.log_softmax(pred / T, dim=1)
+                    loss_soft = F.kl_div(hard_prob, soft_prob)
+                    loss = loss_clean + loss_soft
+
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
