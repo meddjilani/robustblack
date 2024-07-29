@@ -43,6 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('--train_path', type=str, default= '/raid/data/mdjilani/dataset/Imagenet/Sample_49000')
     parser.add_argument('--save_models', type=str, default= '/raid/data/mdjilani/')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
+    parser.add_argument("--train_mode", type=str, default='know_dist', help="Custom lgv training mode on robust surrogate")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument("-robust", action='store_true', help="use robust models")
 
@@ -66,6 +67,7 @@ if __name__ == '__main__':
         
     attack = LGV(source_model, train_loader, lr=args.lgv_lr, epochs=args.lgv_epochs,
                               nb_models_epoch=args.lgv_nb_models_epoch, wd=1e-4, n_grad=1,
+                              train_mode=args.train_mode,
                               attack_class=torchattacks.attacks.mifgsm.MIFGSM, eps=args.eps, alpha=args.alpha,
                               steps=args.steps, decay=args.decay, verbose=True)
     attack.collect_models()
