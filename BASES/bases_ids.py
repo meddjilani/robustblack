@@ -55,7 +55,8 @@ if __name__ == "__main__":
     for j,folder_name in enumerate(folder_names):
         folder_path = os.path.join(base_path, folder_name)
         for image_filename in os.listdir(folder_path):
-            image_path_adv = os.path.join(folder_path, filename)
+            image_path_adv = os.path.join(folder_path, image_filename)
+            print(image_path_adv)
             if image_filename[-4:] == '.png':
                 sep = image_filename.split(' ')[0]
                 if int(sep[0]) in ids_list:
