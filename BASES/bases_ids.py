@@ -77,6 +77,7 @@ if __name__ == "__main__":
 
                     predicted_name = imagenet_names[int(pred)].split(',')[0]
                     predicted_names.append(predicted_name)
+                    print(predicted_names[-1]==gt_names[-1])
 
 
 
