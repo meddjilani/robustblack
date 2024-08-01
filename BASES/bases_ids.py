@@ -44,7 +44,6 @@ if __name__ == "__main__":
     # Read and transform the IDs
     ids_list = read_ids_from_file(filename)
 
-    # Print the resulting list of IDs
     gt_names = []
     predicted_names = []
     base_path = '/raid/data/mdjilani/bases_adv_rob'
@@ -58,9 +57,10 @@ if __name__ == "__main__":
             if image_filename[-4:] == '.png':
                 sep = image_filename.split(' ')
                 if int(sep[0]) in ids_list:
-                    print(sep[1][:-4])
+                    gt_names.append(" ".join(image_filename.split()[1:]).rsplit('.', 1)[0])
+                    print(image_filename)
                     print(int(sep[0]))
-                    gt_names.append(sep[1][:-4])
+                    print(gt_names[-1])
 
                     img_adv = Image.open(image_path_adv)
 
