@@ -58,6 +58,7 @@ if __name__ == "__main__":
             if image_filename[-4:] == '.png':
                 sep = image_filename.split(' ')[0]
                 if int(sep[0]) in ids_list:
+                    print(image_filename)
                     print(int(sep[0]))
                     gt_names.append(sep[1])
 
