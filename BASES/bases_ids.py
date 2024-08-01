@@ -58,9 +58,9 @@ if __name__ == "__main__":
             if image_filename[-4:] == '.png':
                 sep = image_filename.split(' ')
                 if int(sep[0]) in ids_list:
-                    print(image_filename)
+                    print(sep[1][:-4])
                     print(int(sep[0]))
-                    gt_names.append(sep[1])
+                    gt_names.append(sep[1][:-4])
 
                     img_adv = Image.open(image_path_adv)
 
