@@ -22,7 +22,7 @@ def read_ids_from_file(filename):
         content = file.read()
 
         # Split the content by commas and strip any whitespace or newline characters
-        ids = [int(id.strip()) for id in content.split(',')]
+        ids = [int(id.strip()) for id in content.split(',') if id!='']
 
     return ids
 
