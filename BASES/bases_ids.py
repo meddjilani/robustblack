@@ -56,7 +56,6 @@ if __name__ == "__main__":
         folder_path = os.path.join(base_path, folder_name)
         for image_filename in os.listdir(folder_path):
             image_path_adv = os.path.join(folder_path, image_filename)
-            print(image_path_adv)
             if image_filename[-4:] == '.png':
                 sep = image_filename.split(' ')[0]
                 if int(sep[0]) in ids_list:
@@ -74,10 +73,12 @@ if __name__ == "__main__":
                     victim_model.to(device)
 
                     pred = victim_model(image_tensor_adv).argmax(dim=1).item()
-                    print("pred", pred)
 
                     predicted_name = imagenet_names[int(pred)].split(',')[0]
                     predicted_names.append(predicted_name)
+
+                    print("pred", predicted_name, " gt_label", image_filename.split(' ')[1])
+
 
         cpt = 0
         len_list  = len(predicted_names)
