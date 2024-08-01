@@ -57,7 +57,7 @@ if __name__ == "__main__":
         for image_filename in os.listdir(folder_path):
             image_path_adv = os.path.join(folder_path, filename)
             if image_filename[-4:] == '.png':
-                sep = image_filename[:-4].split('')
+                sep = image_filename.split(' ')[0]
                 if int(sep[0]) in ids_list:
                     gt_names.append(sep[1])
 
