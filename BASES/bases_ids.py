@@ -39,7 +39,7 @@ if __name__ == "__main__":
     experiment.log_parameters(parameters)
     experiment.set_name("bases_ids")
 
-    filename = 'raid/data/mdjilani/bases_ids.txt'  # replace with your filename
+    filename = '/raid/data/mdjilani/bases_ids.txt'  # replace with your filename
 
     # Read and transform the IDs
     ids_list = read_ids_from_file(filename)
