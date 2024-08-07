@@ -1,3 +1,6 @@
+#ignore test local files
+*test*
+
 #cometml runs
 .cometml-runs/
 
