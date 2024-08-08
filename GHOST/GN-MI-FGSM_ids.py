@@ -1,0 +1,136 @@
+from comet_ml import Experiment
+import torch
+import torch.nn as nn
+from robustbench.utils import load_model, clean_accuracy
+from robustbench_ghost.utils import load_model as load_model_ghost
+import torchattacks
+import json
+import argparse
+
+import os
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
+sys.path.append(parent_dir)
+
+from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_RQ1, COMET_PROJECT_RQ2, COMET_PROJECT_RQ3
+
+import torchvision_ghost.models as ghost_models
+from utils_robustblack import DataLoader, set_random_seed, read_ids_from_file
+from utils_robustblack.Normalize import Normalize
+import numpy as np
+from PIL import Image
+
+
+def load_ghost_model_torchvision(model_name, device, mean, std):
+    model = getattr(ghost_models, model_name)(pretrained=True)
+    model = nn.Sequential(
+        Normalize(mean, std),
+        model
+    )
+    model.to(device).eval()
+    return model
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', type=str, default='Engstrom2019Robustness')
+    parser.add_argument('--target', type=str, default= 'Standard_R50')
+    parser.add_argument('--eps', type = float, default=8/255)
+    parser.add_argument('--alpha', type=float,default=2/255)
+    parser.add_argument('--decay', type=float,default= 1.0)
+    parser.add_argument('--steps', type=int,default=10)
+    parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
+    parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
+    parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
+    parser.add_argument('--seed', default=42, type=int)
+    parser.add_argument('--comet_proj', default='RQ3', type=str)
+    parser.add_argument("-robust", action='store_true', help="use robust models")
+
+    args = parser.parse_args()
+    set_random_seed(args.seed)
+
+    comet_rq_proj = {'RQ1':COMET_PROJECT_RQ1, 'RQ2':COMET_PROJECT_RQ2, 'RQ3':COMET_PROJECT_RQ3}
+    experiment = Experiment(
+        api_key=COMET_APIKEY,
+        project_name=comet_rq_proj[args.comet_proj],
+        workspace=COMET_WORKSPACE,
+    )
+
+    parameters = {'attack': 'GN-MI-FGSM', **vars(args)}
+    experiment.log_parameters(parameters)
+    experiment.set_name("GN-MI-FGSM_"+args.model+"_"+args.target)
+
+    device = torch.device(args.gpu)
+
+    loader, nlabels, mean, std = DataLoader.imagenet_robustbench({'helpers_path': args.helpers_path,
+                                                      'data_path': args.data_path,
+                                                      'batch_size': args.batch_size}
+                                                     )
+
+    if args.robust:
+        source_model = load_model_ghost(args.model, dataset='imagenet', threat_model='Linf').to(device)
+    else:
+        source_model = load_ghost_model_torchvision(args.model, device, mean, std)
+
+    target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
+    target_model.to(device)
+
+    suc_rate_steps = 0
+    images_steps = 0
+    correct_adversarials_steps = 0
+
+    filename = '/raid/data/mdjilani/bases_ids.txt'
+    valid_ids = read_ids_from_file(filename)
+    for batch_ndx, (x_test, y_test) in enumerate(loader):
+
+        x_test, y_test = x_test.to(device), y_test.to(device)
+
+        print('Running GN-MI-FGSM attack on batch ', batch_ndx)
+        attack = torchattacks.MIFGSM(source_model, eps=args.eps, alpha=args.alpha, steps=args.steps, decay=args.decay)
+        adv_images_GN_MI = attack(x_test, y_test)
+
+        acc = clean_accuracy(target_model, x_test, y_test)
+        print(args.target, 'Clean Acc: %2.2f %%'%(acc*100))
+
+        with torch.no_grad():
+            predictions = target_model(x_test)
+            predicted_classes = torch.argmax(predictions, dim=1)
+            correct_predictions = (predicted_classes == y_test).sum().item()
+            correct_batch_indices = (predicted_classes == y_test).nonzero().squeeze(-1)
+
+
+        print(batch_ndx, correct_batch_indices)
+        x_test_id_dataset = (args.batch_size * batch_ndx) + correct_batch_indices
+        print(x_test_id_dataset)
+        x_test_valid_id_dataset = x_test_id_dataset[torch.tensor([id in valid_ids for id in x_test_id_dataset])]
+        x_test_valid_id = x_test_valid_id_dataset - (args.batch_size * batch_ndx)
+        print(x_test_valid_id)
+
+
+        suc_rate = 1 - clean_accuracy(target_model, adv_images_GN_MI[x_test_valid_id,:,:,:], y_test[x_test_valid_id])
+        rob_acc = acc*(1-suc_rate)
+        print(args.target, 'Robust Acc: %2.2f %%'%(acc*(1-suc_rate)*100))
+        print(args.target, 'Success Rate: %2.2f %%'%(suc_rate*100))
+        if x_test_valid_id.size(0) != 0:
+            suc_rate_steps = suc_rate_steps*images_steps + suc_rate*x_test_valid_id.size(0)
+            images_steps += x_test_valid_id.size(0)
+            correct_adversarials_steps += suc_rate * x_test_valid_id.size(0) # if division is the reason for success rate difference
+            suc_rate_steps = suc_rate_steps / images_steps
+        metrics = {'correct_advs_steps':correct_adversarials_steps, 'suc_rate_steps': suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate,
+                   'target_correct_pred': correct_predictions}
+        experiment.log_metrics(metrics, step=batch_ndx+1)
+
+        adversarial_folder = "/raid/data/mdjilani/ghost_adversarials_"+str(args.target)
+        os.makedirs(adversarial_folder, exist_ok=True)
+        for im_idx, image_tensor in enumerate(adv_images_GN_MI[x_test_valid_id,:,:,:]):
+            image_np = image_tensor.permute(1, 2, 0).cpu().numpy()
+            image_np = image_np*255
+            image_np = image_np.astype(np.uint8)
+            gt_label = y_test[x_test_valid_id][im_idx]
+
+            adv_path = os.path.join(adversarial_folder, f"{batch_ndx}_{im_idx}_{gt_label}.png")
+
+            adv_png = Image.fromarray(image_np)
+            adv_png.save(adv_path)
