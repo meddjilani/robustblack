@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
 
         print(batch_ndx, correct_batch_indices)
-        x_test_id_dataset = (args.batch_size * batch_ndx) + correct_batch_indices)
+        x_test_id_dataset = (args.batch_size * batch_ndx) + correct_batch_indices
         print(x_test_id_dataset)
         x_test_valid_id_dataset = x_test_id_dataset[torch.tensor([id in valid_ids for id in x_test_id_dataset])]
         x_test_valid_id = x_test_valid_id_dataset - (args.batch_size * batch_ndx)
