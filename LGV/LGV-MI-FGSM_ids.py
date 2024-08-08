@@ -143,28 +143,26 @@ if __name__ == '__main__':
         x_test_valid_id_dataset = x_test_id_dataset[torch.tensor([id in valid_ids for id in x_test_id_dataset])]
         x_test_valid_id = x_test_valid_id_dataset - (args.batch_size * batch_ndx)
         print(x_test_valid_id)
-        x_test_valid_correct_id = correct_batch_indices[torch.tensor([id in x_test_valid_id for id in correct_batch_indices])]
-        print(x_test_valid_correct_id)
 
 
-        suc_rate = 1 - clean_accuracy(target_model, adv_images_LGV[x_test_valid_correct_id,:,:,:], y_test[x_test_valid_correct_id])
+        suc_rate = 1 - clean_accuracy(target_model, adv_images_LGV[x_test_valid_id,:,:,:], y_test[x_test_valid_id])
         rob_acc = acc*(1-suc_rate)
         print(args.target, 'Robust Acc: %2.2f %%'%(acc*(1-suc_rate)*100))
         print(args.target, 'Success Rate: %2.2f %%'%(suc_rate*100))
-        if x_test_valid_correct_id.size(0) != 0:
-            suc_rate_steps = suc_rate_steps*images_steps + suc_rate*x_test_valid_correct_id.size(0)
-            images_steps += x_test_valid_correct_id.size(0)
+        if x_test_valid_id.size(0) != 0:
+            suc_rate_steps = suc_rate_steps*images_steps + suc_rate*x_test_valid_id.size(0)
+            images_steps += x_test_valid_id.size(0)
             suc_rate_steps = suc_rate_steps/images_steps
         metrics = {'suc_rate_steps':suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate, 'target_correct_pred': correct_predictions}
         experiment.log_metrics(metrics, step=batch_ndx+1)
 
         adversarial_folder = "/raid/data/mdjilani/lgv_remote"
         os.makedirs(adversarial_folder, exist_ok=True)
-        for im_idx, image_tensor in enumerate(adv_images_LGV[x_test_valid_correct_id, :, :, :]):
+        for im_idx, image_tensor in enumerate(adv_images_LGV[x_test_valid_id, :, :, :]):
             image_np = image_tensor.permute(1, 2, 0).cpu().numpy()
             image_np = image_np * 255
             image_np = image_np.astype(np.uint8)
-            gt_label = y_test[x_test_valid_correct_id][im_idx]
+            gt_label = y_test[x_test_valid_id][im_idx]
 
             adv_path = os.path.join(adversarial_folder, f"{batch_ndx}_{im_idx}_{gt_label}.png")
 
