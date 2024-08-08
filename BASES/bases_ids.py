@@ -14,17 +14,9 @@ from torchvision import transforms
 import torch
 import numpy as np
 from robustbench.utils import load_model
+from utils_robustblack import set_random_seed, read_ids_from_file
 
 
-def read_ids_from_file(filename):
-    with open(filename, 'r') as file:
-        # Read the entire file content
-        content = file.read()
-
-        # Split the content by commas and strip any whitespace or newline characters
-        ids = [int(id.strip()) for id in content.split(',') if id!='']
-
-    return ids
 
 
 if __name__ == "__main__":
