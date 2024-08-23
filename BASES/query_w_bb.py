@@ -91,6 +91,12 @@ def main():
     parameters = {'attack': 'BASES', **vars(args)}
     experiment.log_parameters(parameters)
 
+
+    loader, nlabels, mean, std = DataLoader.imagenet_robustbench_bases({'helpers_path': args.helpers_path,
+                                                                  'data_path': args.data_path,
+                                                                  'batch_size': 1}
+                                                                 )
+
     wb = []
     if args.robust:
         experiment.set_name("BASES_" + '_'.join(args.models) + "_" + args.victim)
@@ -101,7 +107,7 @@ def main():
         experiment.set_name("BASES_" + '_'.join(surrogate_names[:n_wb]) + "_" + args.victim)
         for model_name in surrogate_names[:n_wb]:
             print(f"load: {model_name}")
-            wb.append(load_model_torchvision(model_name, device))
+            wb.append(load_model_torchvision(model_name, device, mean, std))
 
     # load victim model
     victim_model = load_model(args.victim, dataset = 'imagenet', threat_model = 'Linf')
@@ -118,10 +124,6 @@ def main():
     adv_root = Path(args.adv_root) / exp
     adv_root.mkdir(parents=True, exist_ok=True)
 
-    loader, nlabels, mean, std = DataLoader.imagenet_robustbench_bases({'helpers_path': args.helpers_path,
-                                                                  'data_path': args.data_path,
-                                                                  'batch_size': 1}
-                                                                 )
 
     success_idx_list = set()
     success_idx_list_pretend = set() # untargeted success

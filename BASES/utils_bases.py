@@ -8,6 +8,7 @@ import torchvision.models as models # version 0.12
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
+from utils_robustblack.Normalize import Normalize
 
 
 normalize = transforms.Compose([
@@ -89,10 +90,9 @@ model_names = [
     'convnext_large'
     ]
 
-
-def load_model_torchvision(model_name, device):
+def load_model_torchvision(model_name, device, mean, std):
     """Load the model according to the idx in list model_names
-    Args: 
+    Args:
         model_name (str): the name of model, chosen from the following list
         model_names = ['alexnet', 'vgg11', 'vgg13', 'vgg16', 'vgg19', 'vgg11_bn', 'vgg13_bn', 'vgg16_bn', 'vgg19_bn', \
             'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152', 'squeezenet1_0', 'squeezenet1_1', \
@@ -101,7 +101,12 @@ def load_model_torchvision(model_name, device):
     Returns:
         model (torchvision.models): the loaded model
     """
-    model = getattr(models, model_name)(pretrained=True).to(device).eval()
+    model = getattr(models, model_name)(pretrained=True)
+    model = nn.Sequential(
+        Normalize(mean, std),
+        model
+    )
+    model.to(device).eval()
     return model
 
 
@@ -284,7 +289,7 @@ def get_adv(im, adv, target, w, pert_machine, bound, eps, n_iters, alpha, algo='
         adv_list = []
     for i in range(n_iters):
         adv.requires_grad=True
-        input_tensor = normalize(adv/255)
+        input_tensor = adv/255
         outputs = [model(input_tensor) for model in pert_machine]
 
         if fuse == 'loss':
