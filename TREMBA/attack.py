@@ -81,6 +81,9 @@ parser.add_argument('--data_path', default='/raid/data/mdjilani/dataset/Sample_1
 parser.add_argument('--generator_name', default='Imagenet_Wong2020Fast_Engstrom2019Robustness_Debenedetti2022Light_XCiT-M12_untarget')
 parser.add_argument('--save_path', default='/raid/data/mdjilani/tremba_save_path')
 parser.add_argument('--helpers_path', type=str, default='/home/mdjilani/robustblack/utils_robustblack')
+parser.add_argument('--adversarial_folder', default="/raid/data/mdjilani/adversarials_tremba")
+
+
 
 args = parser.parse_args()
 set_random_seed(args.seed)
@@ -177,7 +180,7 @@ count_total = 0
 if not os.path.exists(state['save_path']):
     os.mkdir(state['save_path'])
 
-adversarial_folder = "/raid/data/mdjilani/adversarials_tremba"
+adversarial_folder = args.adversarial_folder
 os.makedirs(adversarial_folder, exist_ok=True)
 for i, (images, labels) in enumerate(dataloader):
     images = images.to(device)
