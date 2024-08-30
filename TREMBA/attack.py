@@ -120,11 +120,18 @@ weight = torch.load(os.path.join("G_weight", state['generator_name']+".pytorch")
 
 encoder_weight = {}
 decoder_weight = {}
-for key, val in weight['model_state_dict'].items():
-    if key.startswith('0.'):
-        encoder_weight[key[2:]] = val
-    elif key.startswith('1.'):
-        decoder_weight[key[2:]] = val
+if args.generator_name == 'Imagenet_VGG16_Resnet18_Squeezenet_Googlenet_untarget':
+    for key, val in weight.items():
+        if key.startswith('0.'):
+            encoder_weight[key[2:]] = val
+        elif key.startswith('1.'):
+            decoder_weight[key[2:]] = val
+else:
+    for key, val in weight['model_state_dict'].items():
+        if key.startswith('0.'):
+            encoder_weight[key[2:]] = val
+        elif key.startswith('1.'):
+            decoder_weight[key[2:]] = val
 
 dataloader, nlabels, mean, std = DataLoader.imagenet_robustbench(new_state)
 
