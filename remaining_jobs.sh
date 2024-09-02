@@ -1,15 +1,22 @@
-my_list=( "Liu2023Comprehensive_ConvNeXt-L" "Bai2024MixedNUTS" "Liu2023Comprehensive_Swin-L" )
+#!/bin/bash
 
-test_path="/raid/data/mdjilani/dataset/val"
-helpers_path="/home/mdjilani/robustblack/utils_robustblack"
+# Define the screens, corresponding GPU devices, and victim values
+declare -a screens=("a" "b" "c")
+declare -a gpus=("0" "0" "1")
+declare -a victims=("Salman2020Do_R18" "Standard_R50" "Standard_R50")
+declare -a seeds=("1" "1" "10")
 
-for seed in 42; do
-  for target in "${my_list[@]}"; do
+# Iterate over screens, GPUs, and victim values
+for i in "${!screens[@]}"; do
+    screen_name="${screens[$i]}"
+    gpu_device="${gpus[$i]}"
+    victim_value="${victims[$i]}"
+    seed_value="${seeds[$i]}"
 
-    cd LGV
-    python LGV-MI-FGSM_ids.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --helpers_path $helpers_path --gpu cuda --model Peng2023Robust --batch_size 16 --lgv_models "/raid/data/mdjilani/lgv_models_robustPeng2023Robust" --comet_proj RQ3 -robust
+    echo "Attaching to screen $screen_name, setting CUDA_VISIBLE_DEVICES=$gpu_device, using victim=$victim_value, and running command."
 
-
-    cd ..
-  done
+    screen -dmS "$screen_name" bash -c "
+        export CUDA_VISIBLE_DEVICES=$gpu_device;
+        python query_w_bb.py --victim $victim_value --start_epoch 0 --eps 4 --n_wb 10  --helpers_path /home/mdjilani/robustblack/utils_robustblack --exp_root /mnt/data/data/mdjilani/bases_exp --adv_root /mnt/data/data/mdjilani/bases_adv --iterw 20 --seed $seed_value --data_path /mnt/data/data/mdjilani/dataset/val --gpu cuda --comet_proj RQ1 -untargeted
+        exec bash"
 done
