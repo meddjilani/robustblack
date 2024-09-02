@@ -1,9 +1,11 @@
 #!/bin/bash
 cd BASES
 
+conda activate vevnrb
+
 # Define the screens, corresponding GPU devices, and victim values
 declare -a screens=("a" "b" "c")
-declare -a gpus=("0" "0" "1")
+declare -a gpus=("0" "1" "1")
 declare -a victims=("Salman2020Do_R18" "Standard_R50" "Standard_R50")
 declare -a seeds=("1" "1" "10")
 
@@ -16,7 +18,7 @@ for i in "${!screens[@]}"; do
 
     echo "Attaching to screen $screen_name, setting CUDA_VISIBLE_DEVICES=$gpu_device, using victim=$victim_value, and running command."
 
-    screen -dmS "$screen_name" bash -c "
+    screen -S "236642.$screen_name" -X stuff "
         export CUDA_VISIBLE_DEVICES=$gpu_device;
         python query_w_bb.py --victim $victim_value --start_epoch 0 --eps 4 --n_wb 10  --helpers_path /home/mdjilani/robustblack/utils_robustblack --exp_root /mnt/data/data/mdjilani/bases_exp --adv_root /mnt/data/data/mdjilani/bases_adv --iterw 20 --seed $seed_value --data_path /mnt/data/data/mdjilani/dataset/val --gpu cuda --comet_proj RQ1 -untargeted
         exec bash"
