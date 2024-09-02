@@ -1,6 +1,7 @@
 #!/bin/bash
 cd BASES
-conda activate vevnrb
+
+conda activate venvrb
 
 # Define the screens, corresponding GPU devices, and victim values
 declare -a screens=("2.a" "6.b" "9.c")
