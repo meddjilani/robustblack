@@ -1,5 +1,5 @@
 #!/bin/bash
-
+cd BASES
 conda activate vevnrb
 
 # Define the screens, corresponding GPU devices, and victim values
