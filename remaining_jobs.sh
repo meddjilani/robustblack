@@ -1,5 +1,4 @@
 #!/bin/bash
-cd BASES
 
 conda activate vevnrb
 
