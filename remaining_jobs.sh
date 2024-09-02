@@ -1,4 +1,5 @@
 #!/bin/bash
+cd BASES
 
 # Define the screens, corresponding GPU devices, and victim values
 declare -a screens=("a" "b" "c")
