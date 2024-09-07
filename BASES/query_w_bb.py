@@ -56,7 +56,9 @@ def main():
     parser.add_argument('--comet_proj', default='RQ1', type=str)
     parser.add_argument("-robust", action='store_true', help="use robust models")
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
-    parser.add_argument("--start_epoch", type=int, default=1000, help="resume attack starting from id")
+    parser.add_argument("--start_epoch", type=int, default=0, help="resume attack starting from id")
+    parser.add_argument("--end_epoch", type=int, default=5000, help="stop attack reaching this id")
+
 
 
 
@@ -133,7 +135,7 @@ def main():
     count_correctly_classified_images = 0
     suc_rate_steps = 0
     for im_idx, (x_test, y_test) in enumerate(loader):
-        if im_idx >= args.start_epoch:
+        if im_idx >= args.start_epoch and im_idx <= args.end_epoch:
             print(f"\n im_idx: {im_idx}")
             x_test_sq_per = torch.squeeze(x_test, dim=0).permute(1,2,0)
             im_np = np.array(x_test_sq_per)
