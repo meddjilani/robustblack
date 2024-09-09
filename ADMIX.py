@@ -73,6 +73,10 @@ if __name__ == '__main__':
 
     suc_rate_steps = 0
     images_steps = 0
+
+    file_name = parameters['attack']
+    successful_adv_ids = []
+
     for batch_ndx, (x_test, y_test) in enumerate(loader):
 
         x_test, y_test = x_test.to(device), y_test.to(device)
@@ -102,5 +106,19 @@ if __name__ == '__main__':
             suc_rate_steps = suc_rate_steps*images_steps + suc_rate*correct_batch_indices.size(0)
             images_steps += correct_batch_indices.size(0)
             suc_rate_steps = suc_rate_steps/images_steps
+
+
+            for idx in correct_batch_indices:
+                adv_image_idx = batch_ndx * args.batch_size + idx.item()
+                if torch.argmax(target_model(adv_images_MI[idx].unsqueeze(0))) != y_test[idx]:
+                    successful_adv_ids.append(adv_image_idx)
+
+
         metrics = {'suc_rate_steps':suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate, 'target_correct_pred': correct_predictions}
         experiment.log_metrics(metrics, step=batch_ndx+1)
+
+    with open(file_name + '_ids.txt', 'w') as output_file:
+        for idx in successful_adv_ids:
+            output_file.write(f"{idx}\n")
+    print(len(successful_adv_ids))
+    print("Successful IDs saved to 'successful_ids.txt'")

@@ -80,6 +80,10 @@ def get_fooling_rate(model, delta, data_loader, device, experiment=None, disable
 
     model.eval()
     with torch.no_grad():
+
+        file_name = 'uap'
+        successful_adv_ids = []
+
         for batch_id, batch in tqdm(enumerate(data_loader), disable=disable_tqdm):
             images, labels = batch
             images = images.to(device)
@@ -107,9 +111,21 @@ def get_fooling_rate(model, delta, data_loader, device, experiment=None, disable
                     suc_rate_steps = suc_rate_steps * images_steps + suc_rate * correct_batch_indices.size(0)
                     images_steps += correct_batch_indices.size(0)
                     suc_rate_steps = suc_rate_steps / images_steps
+
+                    for idx in correct_batch_indices:
+                        adv_image_idx = batch_ndx * args.batch_size + idx.item()
+                        if torch.argmax(target_model(adv_images_MI[idx].unsqueeze(0))) != y_test[idx]:
+                            successful_adv_ids.append(adv_image_idx)
+
                 metrics = {'fooling_rate_steps': flipped / total, 'suc_rate_steps': suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate,
                            'target_correct_pred': correct_predictions}
                 experiment.log_metrics(metrics, step=batch_id)
+
+                with open(file_name + '_ids.txt', 'w') as output_file:
+                    for idx in successful_adv_ids:
+                        output_file.write(f"{idx}\n")
+                print(len(successful_adv_ids))
+                print("Successful IDs saved to 'successful_ids.txt'")
 
     return flipped / total, suc_rate_steps
 
