@@ -113,8 +113,8 @@ def get_fooling_rate(model, delta, data_loader, device, experiment=None, disable
                     suc_rate_steps = suc_rate_steps / images_steps
 
                     for idx in correct_batch_indices:
-                        adv_image_idx = batch_ndx * args.batch_size + idx.item()
-                        if torch.argmax(target_model(adv_images_MI[idx].unsqueeze(0))) != y_test[idx]:
+                        adv_image_idx = batch_id * data_loader.batch_size + idx.item()
+                        if torch.argmax(model(adv_images[idx].unsqueeze(0))) != batch[1][idx]:
                             successful_adv_ids.append(adv_image_idx)
 
                 metrics = {'fooling_rate_steps': flipped / total, 'suc_rate_steps': suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate,

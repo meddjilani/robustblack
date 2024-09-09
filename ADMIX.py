@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
             for idx in correct_batch_indices:
                 adv_image_idx = batch_ndx * args.batch_size + idx.item()
-                if torch.argmax(target_model(adv_images_MI[idx].unsqueeze(0))) != y_test[idx]:
+                if torch.argmax(target_model(adv_images_ADMIX[idx].unsqueeze(0))) != y_test[idx]:
                     successful_adv_ids.append(adv_image_idx)
 
 
