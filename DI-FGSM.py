@@ -115,7 +115,7 @@ if __name__ == '__main__':
         metrics = {'suc_rate_steps':suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate, 'target_correct_pred': correct_predictions}
         experiment.log_metrics(metrics, step=batch_ndx+1)
 
-    with open(file_name + '_ids.txt', 'w') as output_file:
+    with open(file_name + '_' + args.target + '_ids.txt', 'w') as output_file:
         for idx in successful_adv_ids:
             output_file.write(f"{idx}\n")
     print(len(successful_adv_ids))

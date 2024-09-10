@@ -65,7 +65,7 @@ def get_index_to_label_map(dataset_name):
             index_to_label = [class_idx[str(k)][1] for k in range(len(class_idx))]
             return index_to_label
 
-def get_fooling_rate(model, delta, data_loader, device, experiment=None, disable_tqdm=False):
+def get_fooling_rate(model, model_name, delta, data_loader, device, experiment=None, disable_tqdm=False):
     """
     Computes the fooling rate of the UAP delta on the dataset.
     Fooling rate is a measure of change in the model's output
@@ -120,12 +120,12 @@ def get_fooling_rate(model, delta, data_loader, device, experiment=None, disable
                 metrics = {'fooling_rate_steps': flipped / total, 'suc_rate_steps': suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate,
                            'target_correct_pred': correct_predictions}
                 experiment.log_metrics(metrics, step=batch_id)
-
-                with open(file_name + '_ids.txt', 'w') as output_file:
-                    for idx in successful_adv_ids:
-                        output_file.write(f"{idx}\n")
-                print(len(successful_adv_ids))
-                print("Successful IDs saved to 'successful_ids.txt'")
+                if model_name != '':
+                    with open(file_name + '_' + model_name + '_ids.txt', 'w') as output_file:
+                        for idx in successful_adv_ids:
+                            output_file.write(f"{idx}\n")
+                    print(len(successful_adv_ids))
+                    print("Successful IDs saved to 'successful_ids.txt'")
 
     return flipped / total, suc_rate_steps
 
@@ -137,7 +137,7 @@ def get_baseline_fooling_rate(model, data_loader, device, eps=10/255, disable_tq
     xi_max = eps
     delta = (xi_min - xi_max) * torch.rand((1, 3, 224, 224), device=device) + xi_max
     delta.requires_grad = True
-    fr, _ = get_fooling_rate(model, delta, data_loader, device, disable_tqdm=disable_tqdm)
+    fr, _ = get_fooling_rate(model, '',delta, data_loader, device, disable_tqdm=disable_tqdm)
     return fr
 
 def get_rate_of_saturation(delta, xi):
@@ -206,7 +206,7 @@ def gd_universal_adversarial_perturbation(model, model_name, data_loader, train_
         if iter_since_last_fooling > 400 or (sat_should_rescale and iter_since_last_fooling > 200):
             iter_since_last_fooling = 0
             print("Getting latest fooling rate...")
-            current_fooling_rate, _ = get_fooling_rate(model, delta, data_loader, device, disable_tqdm=disable_tqdm)
+            current_fooling_rate, _ = get_fooling_rate(model, '', delta, data_loader, device, disable_tqdm=disable_tqdm)
             print(f"Latest fooling rate: {current_fooling_rate}")
 
             if current_fooling_rate > best_fooling_rate:

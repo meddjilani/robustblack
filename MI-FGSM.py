@@ -125,7 +125,7 @@ if __name__ == '__main__':
             adv_png = Image.fromarray(image_np)
             adv_png.save(adv_path)
 
-    with open(file_name + '_ids.txt', 'w') as output_file:
+    with open(file_name + '_' + args.target + '_ids.txt', 'w') as output_file:
         for idx in successful_adv_ids:
             output_file.write(f"{idx}\n")
     print(len(successful_adv_ids))

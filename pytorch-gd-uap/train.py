@@ -72,7 +72,7 @@ def main():
     # perform a final evaluation
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
-    target_fooling_rate,  target_suc_rate= get_fooling_rate(target_model, uap, target_data_loader, device, experiment, disable_tqdm=True)
+    target_fooling_rate,  target_suc_rate= get_fooling_rate(target_model, args.target, uap, target_data_loader, device, experiment, disable_tqdm=True)
     print(f"Target fooling rate on {args.target} : {target_fooling_rate}")
     print(f"Target success rate on {args.target} : {target_suc_rate}")
 
