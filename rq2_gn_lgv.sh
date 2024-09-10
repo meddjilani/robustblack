@@ -1,10 +1,10 @@
-my_list=( "Wong2020Fast" "Engstrom2019Robustness" )
+my_list=("Liu2023Comprehensive_Swin-L" "Bai2024MixedNUTS" "Liu2023Comprehensive_ConvNeXt-L" )
 
 test_path="/raid/data/mdjilani/dataset/val"
 helpers_path="/home/mdjilani/robustblack/utils_robustblack"
 
 
-for seed in 42; do
+for seed in 1; do
   for target in "${my_list[@]}"; do
 
     cd LGV
