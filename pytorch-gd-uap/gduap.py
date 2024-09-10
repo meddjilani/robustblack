@@ -120,12 +120,12 @@ def get_fooling_rate(model, model_name, delta, data_loader, device, experiment=N
                 metrics = {'fooling_rate_steps': flipped / total, 'suc_rate_steps': suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate,
                            'target_correct_pred': correct_predictions}
                 experiment.log_metrics(metrics, step=batch_id)
-                if model_name != '':
-                    with open(file_name + '_' + model_name + '_ids.txt', 'w') as output_file:
-                        for idx in successful_adv_ids:
-                            output_file.write(f"{idx}\n")
-                    print(len(successful_adv_ids))
-                    print("Successful IDs saved to 'successful_ids.txt'")
+        if model_name != '':
+            with open(file_name + '_' + model_name + '_ids.txt', 'w') as output_file:
+                for idx in successful_adv_ids:
+                    output_file.write(f"{idx}\n")
+            print(len(successful_adv_ids))
+            print("Successful IDs saved to 'successful_ids.txt'")
 
     return flipped / total, suc_rate_steps
 
