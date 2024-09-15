@@ -123,13 +123,13 @@ weight = torch.load(os.path.join("G_weight", state['generator_name']+".pytorch")
 
 encoder_weight = {}
 decoder_weight = {}
-if args.generator_name == 'Imagenet_VGG16_Resnet18_Squeezenet_Googlenet_untarget' or 'Imagenet_Wong2020Fast_Engstrom2019Robustness_Debenedetti2022Light_XCiT-M12_untarget' or 'Imagenet_Liu2023Comprehensive_Swin-B_Peng2023Robust_untarget':
+if args.generator_name == 'Imagenet_VGG16_Resnet18_Squeezenet_Googlenet_untarget' or 'Imagenet_Wong2020Fast_Engstrom2019Robustness_Debenedetti2022Light_XCiT-M12_untarget':
     for key, val in weight.items():
         if key.startswith('0.'):
             encoder_weight[key[2:]] = val
         elif key.startswith('1.'):
             decoder_weight[key[2:]] = val
-else:
+elif args.generator_name == 'Imagenet_Liu2023Comprehensive_Swin-B_Peng2023Robust_untarget':
     for key, val in weight['model_state_dict'].items():
         if key.startswith('0.'):
             encoder_weight[key[2:]] = val
