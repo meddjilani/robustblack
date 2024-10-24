@@ -1,6 +1,6 @@
 my_list=("Liu2023Comprehensive_Swin-L", "Bai2024MixedNUTS", "Liu2023Comprehensive_ConvNeXt-L", "Liu2023Comprehensive_Swin-B" "Liu2023Comprehensive_ConvNeXt-B" "Singh2023Revisiting_ViT-S-ConvStem" "Salman2020Do_50_2" "Salman2020Do_R50", "Salman2020Do_R18", "Standard_R50")
 
-test_path="/mnt/data/data/mdjilani/dataset/val"
+test_path="/raid/data/mdjilani/dataset/val"
 
 for seed in 1 10 42; do
   for target in "${my_list[@]}"; do
