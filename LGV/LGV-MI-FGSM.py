@@ -107,7 +107,8 @@ if __name__ == '__main__':
             if args.robust:
                 source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
             else:
-                source_model.load_state_dict(add_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
+                source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
+                # source_model.load_state_dict(add_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
             source_model.eval()
             loaded_models.append(source_model)
             # if i+1 == num_lgv_models:
