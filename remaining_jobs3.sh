@@ -1,13 +1,24 @@
-my_list=( "Liu2023Comprehensive_ConvNeXt-L" "Bai2024MixedNUTS" "Liu2023Comprehensive_Swin-L" )
+my_list=("Liu2023Comprehensive_ConvNeXt-L" "Salman2020Do_R50" "Salman2020Do_R18")
 
 test_path="/raid/data/mdjilani/dataset/val"
-helpers_path="/home/mdjilani/robustblack/utils_robustblack"
 
 for seed in 42; do
   for target in "${my_list[@]}"; do
 
-    cd TREMBA
-    python attack_ids.py --comet_proj RQ3 --seed $seed --model_name $target --device cuda --config config/attack_untarget.json --data_path $test_path --helpers_path $helpers_path --generator_name Imagenet_Liu2023Comprehensive_Swin-B_Peng2023Robust_untarget --save_path /raid/data/mdjilani/tremba_save_path_robust
+    python MI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python SGM-MI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python DI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python TI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python VMI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python VNI-FGSM.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    cd pytorch-gd-uap
+    python train.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
 
     cd ..
   done
