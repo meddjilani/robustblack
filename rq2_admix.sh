@@ -1,4 +1,4 @@
-my_list=("Liu2023Comprehensive_ConvNeXt-L" "Salman2020Do_R50" "Salman2020Do_R18")
+my_list=("Salman2020Do_R50")
 
 test_path="/raid/data/mdjilani/dataset/val"
 
