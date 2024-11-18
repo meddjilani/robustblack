@@ -36,6 +36,8 @@ def main():
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
+    parser.add_argument("-robust", action='store_true', help="use robust models")
+
 
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -57,7 +59,10 @@ def main():
                                                       'batch_size': args.batch_size}
                                                      )
 
-    model = load_model_torchvision(args.model, device, mean, std)
+    if args.robust:
+        model = load_model(args.model, dataset='imagenet', threat_model='Linf').to(device)
+    else:
+        model = load_model_torchvision(args.model, device, mean, std)
 
     if args.baseline:
         print("Obtaining baseline fooling rate...")

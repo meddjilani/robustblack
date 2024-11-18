@@ -19,6 +19,8 @@ from utils_robustblack import DataLoader
 from utils_robustblack.Normalize import Normalize
 import numpy as np
 from PIL import Image
+from robustbench.utils import load_model
+
 
 
 def load_model_torchvision(model_name, device, mean, std):
@@ -45,6 +47,8 @@ if __name__ == '__main__':
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
+    parser.add_argument("-robust", action='store_true', help="use robust models")
+
 
     args = parser.parse_args()
     set_random_seed(args.seed)
@@ -65,8 +69,10 @@ if __name__ == '__main__':
                                                       'data_path': args.data_path,
                                                       'batch_size': args.batch_size}
                                                      )
-
-    source_model = load_model_torchvision(args.model, device, mean, std)
+    if args.robust:
+        source_model = load_model(args.model, dataset='imagenet', threat_model='Linf').to(device)
+    else:
+        source_model = load_model_torchvision(args.model, device, mean, std)
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
     target_model.to(device)
 
