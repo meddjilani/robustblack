@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('--lgv_models', type=str, default= '/raid/data/mdjilani/')
     parser.add_argument("--gpu", type=str, default='mps', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
-    parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
+    parser.add_argument('--data_path', type=str, default= '/raid/data/mdjilani/dataset/val')
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
 
     args = parser.parse_args()
