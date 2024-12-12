@@ -41,7 +41,7 @@ if __name__ == '__main__':
                                                                   'batch_size': args.batch_size}
                                                                  )
 
-    target_model = load_model('Peng2023Robust', dataset = 'imagenet', threat_model = 'Linf')
+    target_model = load_model('Peng2023Robust', dataset = 'imagenet', threat_model = 'Linf').to(device)
 
     list_targets = []
     if args.attack == 'LGV':
