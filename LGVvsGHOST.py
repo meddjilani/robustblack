@@ -3,7 +3,7 @@ import torch
 from autoattack import AutoAttack
 from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_LGVvsGHOST
 from robustbench.utils import load_model, clean_accuracy
-from robustbench_ghost.utils import load_model as load_model_ghost
+from GHOST.robustbench_ghost.utils import load_model as load_model_ghost
 import argparse
 import os
 import sys
