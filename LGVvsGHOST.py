@@ -3,6 +3,7 @@ import torch
 from autoattack import AutoAttack
 from app_config import COMET_APIKEY, COMET_WORKSPACE, COMET_PROJECT_LGVvsGHOST
 from robustbench.utils import load_model, clean_accuracy
+from robustbench_ghost.utils import load_model as load_model_ghost
 import argparse
 import os
 import sys
@@ -41,10 +42,13 @@ if __name__ == '__main__':
                                                                   'batch_size': args.batch_size}
                                                                  )
 
-    target_model = load_model('Peng2023Robust', dataset = 'imagenet', threat_model = 'Linf').to(device)
+    load_model_ghost
 
     list_targets = []
     if args.attack == 'LGV':
+
+        target_model = load_model('Peng2023Robust', dataset='imagenet', threat_model='Linf').to(device)
+
         for i, filename in enumerate(os.listdir(args.lgv_models + str(args.seed) + 'lgv_models_robustPeng2023Robust')):
             if filename[-3:] == ".pt":
                 target_model.load_state_dict(torch.load(
@@ -52,9 +56,12 @@ if __name__ == '__main__':
                     map_location=device)["state_dict"])
                 target_model.eval()
                 list_targets.append(target_model)
-    # elif args.attack == 'GHOST':
+    elif args.attack == 'GHOST':
 
+        target_model = load_model_ghost('Peng2023Robust', dataset='imagenet', threat_model='Linf').to(device)
 
+        #randomness is included inside model architedtures
+        list_targets = [target_model]*10
     else:
         raise ValueError('Current comparison only supports LGV and GHOST.')
 
@@ -72,7 +79,6 @@ if __name__ == '__main__':
             target_model = list_targets[num_target]
 
             acc = clean_accuracy(target_model, x_test, y_test)
-            print('=======',y_test.size(0))
             batch_images = y_test.size(0)
             total_acc = total_acc_rate * total_images + acc * batch_images
             total_images += batch_images
@@ -103,5 +109,5 @@ if __name__ == '__main__':
 
         print('seed ',args.seed, ', target: ', num_target, " Clean accuracy: %2.2f %%" % (total_acc_rate * 100))
         print('seed ',args.seed, ', target: ', num_target, " Success rate : %2.2f %% \n" % (total_suc_rate * 100))
-        metrics = {'suc_rate': total_suc_rate, 'clean_acc': total_acc_rate, 'target':target}
+        metrics = {'suc_rate': total_suc_rate, 'clean_acc': total_acc_rate, 'target':num_target}
         experiment.log_metrics(metrics, step=num_target + 1)
