@@ -515,7 +515,7 @@ class BottleneckBlock(nn.Module):
                                      device=x.device) * random_range * 2 + (
                                   1 - random_range)
             x = x * perturb_var + self.F(x)
-        print(perturb_var.shape)
+        # print(perturb_var.shape)
         if self.last_activation is not None:
             return self.last_activation(x)
         else:
@@ -843,12 +843,12 @@ if __name__ == "__main__":
     model = get_model("ra_wrn70_16")
     model.cuda()
     x = torch.rand([10, 3, 32, 32])
-    with torch.no_grad():
-        print(model(x.cuda()).shape)
+    # with torch.no_grad():
+        # print(model(x.cuda()).shape)
 
     model = get_model("ra_wrn101_2")
     #print(model.state_dict().keys())
     model.cuda()
     x = torch.rand([10, 3, 224, 224])
-    with torch.no_grad():
-        print(model(x.cuda()).shape)
+    # with torch.no_grad():
+    #     print(model(x.cuda()).shape)
