@@ -20,6 +20,9 @@ if __name__ == '__main__':
     parser.add_argument('--lgv_models', type=str, default= '/raid/data/mdjilani/')
     parser.add_argument("--gpu", type=str, default='mps', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
+    parser.add_argument('--start', default=0, type=int)
+    parser.add_argument('--end', default=10, type=int)
+
     parser.add_argument('--data_path', type=str, default= '/raid/data/mdjilani/dataset/val')
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
 
@@ -66,7 +69,7 @@ if __name__ == '__main__':
         raise ValueError('Current comparison only supports LGV and GHOST.')
 
 
-    for num_target in range(len(list_targets)):
+    for num_target in range(args.start, args.end):
 
         total_acc_rate = 0
         total_suc_rate = 0
