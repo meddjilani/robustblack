@@ -16,6 +16,8 @@ from utils_robustblack.Normalize import Normalize
 from robustbench.utils import load_model
 from torchvision import transforms
 from torchvision import datasets
+import numpy as np
+
 
 
 def load_model_torchvision(model_name, device, mean, std):
