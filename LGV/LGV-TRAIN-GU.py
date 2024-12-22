@@ -66,6 +66,8 @@ if __name__ == '__main__':
                                               shuffle=True,
                                               pin_memory=True)
 
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
 
     if args.robust:
         source_model = load_model(args.model, dataset = 'imagenet', threat_model = 'Linf').to(device)
