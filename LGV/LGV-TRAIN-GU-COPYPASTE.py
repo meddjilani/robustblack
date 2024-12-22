@@ -76,12 +76,15 @@ if __name__ == '__main__':
             model
         )
 
+    if args.robust:
+        base_model = load_model(args.model, dataset = 'imagenet', threat_model = 'Linf').to(device)
 
-    base_model = resnet50(pretrained=True)
-    base_model = add_normalization_layer(model=base_model,
-                                         mean=[0.485, 0.456, 0.406],
-                                         std=[0.229, 0.224, 0.225])
-    base_model = base_model.eval().to(device)
+    else:
+        base_model = resnet50(pretrained=True)
+        base_model = add_normalization_layer(model=base_model,
+                                             mean=[0.485, 0.456, 0.406],
+                                             std=[0.229, 0.224, 0.225])
+        base_model = base_model.eval().to(device)
 
 
 
@@ -102,7 +105,7 @@ if __name__ == '__main__':
               steps=50, verbose=True)
 
     # uncomment the next 2 lines and comment the last one to collect models yourself (10 ImageNet epochs)
-    path_save_models = args.save_models + str(args.seed) + 'lgv_models_robust' + args.model + 'COPYPASTE'
+    path_save_models = args.save_models + str(args.seed) + 'lgv_models' + args.model + 'COPYPASTE'
 
     atk.collect_models()
     atk.save_models(path_save_models)
