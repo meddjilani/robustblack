@@ -77,7 +77,7 @@ if __name__ == '__main__':
         
     else:
         source_model = load_model_torchvision(args.model, device, mean, std)
-        path_save_models = args.save_models + str(args.seed) +'lgv_models' + args.model
+        path_save_models = args.save_models + str(args.seed) +'lgv_models' + args.model+ 'GU'
         
     attack = torchattacks.LGV(source_model, trainloader, lr=args.lgv_lr, epochs=args.lgv_epochs,
                               nb_models_epoch=args.lgv_nb_models_epoch, wd=1e-4, n_grad=1,
