@@ -105,7 +105,7 @@ if __name__ == '__main__':
               steps=50, verbose=True)
 
     # uncomment the next 2 lines and comment the last one to collect models yourself (10 ImageNet epochs)
-    path_save_models = args.save_models + "_FullTrain_"+ str(args.seed) + '_lgv_models_' + args.model + "_" + args.lgv_batch_size
+    path_save_models = args.save_models + "_FullTrain_"+ str(args.seed) + '_lgv_models_' + args.model + "_" + str(args.lgv_batch_size)
 
     atk.collect_models()
     atk.save_models(path_save_models)
