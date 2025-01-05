@@ -52,6 +52,8 @@ if __name__ == '__main__':
     parser.add_argument('--save_models', type=str, default= '/raid/data/mdjilani/')
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
+    parser.add_argument('--n_workers', default=4, type=int)
+
     parser.add_argument("-robust", action='store_true', help="use robust models")
 
 
@@ -64,7 +66,7 @@ if __name__ == '__main__':
     DATA_PATH = args.train_path
     BATCH_SIZE_TRAIN = args.lgv_batch_size  # changing batch-size to collect models might require you to tune the LGV learning rate hyperparameter
     BATCH_SIZE_TEST = 64
-    N_WORKERS = 5
+    N_WORKERS = args.n_workers
 
 
     def add_normalization_layer(model, mean, std):
@@ -77,13 +79,17 @@ if __name__ == '__main__':
         )
 
     if args.robust:
-        base_model = load_model(args.model, dataset = 'imagenet', threat_model = 'Linf').to(device)
+        base_model = load_model(args.model, dataset = 'imagenet', threat_model = 'Linf')
+        base_model = torch.nn.DataParallel(base_model)
+        base_model = base_model.to(device)
+
 
     else:
         base_model = resnet50(pretrained=True)
         base_model = add_normalization_layer(model=base_model,
                                              mean=[0.485, 0.456, 0.406],
                                              std=[0.229, 0.224, 0.225])
+        base_model = torch.nn.DataParallel(base_model)
         base_model = base_model.eval().to(device)
 
 
