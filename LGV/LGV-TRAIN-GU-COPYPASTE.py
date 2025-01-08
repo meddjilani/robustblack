@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
 
     else:
-        base_model = resnet50(pretrained=True)
+        base_model = getattr(models, args.model)(pretrained=True)
         base_model = add_normalization_layer(model=base_model,
                                              mean=[0.485, 0.456, 0.406],
                                              std=[0.229, 0.224, 0.225])
