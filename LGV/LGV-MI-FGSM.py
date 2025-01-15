@@ -27,6 +27,13 @@ def load_model_torchvision(model_name, device, mean, std):
     model.to(device).eval()
     return model
 
+def rem_prefix(state_dict):
+    new_state_dict = state_dict.copy()
+    for k,v in state_dict.items():
+        new_state_dict[k[7:]] = v
+        del new_state_dict[k]
+    return new_state_dict
+
 def add_prefix(state_dict):
     new_state_dict = state_dict.copy()
     for k,v in state_dict.items():
@@ -107,8 +114,12 @@ if __name__ == '__main__':
             if args.robust:
                 source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
             else:
-                source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
-                # source_model.load_state_dict(add_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
+                # source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
+                if args.model== 'wide_resnet101_2' or args.model=='wide_resnet50_2':
+                    source_model.load_state_dict(rem_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
+                else:
+                    source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
+
             source_model.eval()
             loaded_models.append(source_model)
             # if i+1 == num_lgv_models:
