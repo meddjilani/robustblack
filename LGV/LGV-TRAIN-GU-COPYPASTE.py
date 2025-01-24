@@ -53,6 +53,7 @@ if __name__ == '__main__':
     parser.add_argument("--gpu", type=str, default='cuda:0', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--n_workers', default=4, type=int)
+    parser.add_argument('--resume_training', default=None, type=int)
 
     parser.add_argument("-robust", action='store_true', help="use robust models")
 
@@ -113,7 +114,7 @@ if __name__ == '__main__':
     # uncomment the next 2 lines and comment the last one to collect models yourself (10 ImageNet epochs)
     path_save_models = args.save_models + "_FullTrain_"+ str(args.seed) + '_lgv_models_' + args.model + "_" + str(args.lgv_batch_size)
 
-    atk.collect_models(path_save_models)
+    atk.collect_models(path_save_models, args.resume_training)
     # atk.save_models(path_save_models)
 
 
