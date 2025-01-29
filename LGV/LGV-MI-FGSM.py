@@ -17,6 +17,8 @@ from utils_robustblack import DataLoader, set_random_seed
 from utils_robustblack.Normalize import Normalize
 import numpy as np
 from PIL import Image
+import copy  # Import the copy module for deep copying
+
 
 def load_model_torchvision(model_name, device, mean, std):
     model = getattr(models, model_name)(pretrained=True)
@@ -110,18 +112,20 @@ if __name__ == '__main__':
     num_lgv_models = args.lgv_nb_models_epoch * args.lgv_epochs
     loaded_models = []
     for i, filename in enumerate(os.listdir(args.lgv_models)):
+        model = copy.deepcopy(source_model)
+
         if filename[-3:] == ".pt":
             if args.robust:
-                source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
+                model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
             else:
                 # source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
                 if args.model== 'wide_resnet101_2' or args.model=='wide_resnet50_2':
-                    source_model.load_state_dict(rem_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
+                    model.load_state_dict(rem_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
                 else:
-                    source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
+                    model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
 
-            source_model.eval()
-            loaded_models.append(source_model)
+            model.eval()
+            loaded_models.append(model)
             # if i+1 == num_lgv_models:
             #     print("Number of required LGV models have been reached")
             #     break
