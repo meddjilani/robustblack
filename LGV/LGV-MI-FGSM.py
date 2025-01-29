@@ -115,14 +115,10 @@ if __name__ == '__main__':
         model = copy.deepcopy(source_model)
 
         if filename[-3:] == ".pt":
-            if args.robust:
-                model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
+            if args.model== 'wide_resnet101_2' or args.model=='wide_resnet50_2' or args.model=='Peng2023Robust':
+                model.load_state_dict(rem_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
             else:
-                # source_model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
-                if args.model== 'wide_resnet101_2' or args.model=='wide_resnet50_2':
-                    model.load_state_dict(rem_prefix(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"]))
-                else:
-                    model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
+                model.load_state_dict(torch.load(os.path.join(args.lgv_models, filename), map_location=device)["state_dict"])
 
             model.eval()
             loaded_models.append(model)
