@@ -173,7 +173,7 @@ if __name__ == '__main__':
         metrics = {'suc_rate_steps':suc_rate_steps, 'clean_acc': acc, 'robust_acc': rob_acc, 'suc_rate': suc_rate, 'target_correct_pred': correct_predictions}
         experiment.log_metrics(metrics, step=batch_ndx+1)
 
-        adversarial_folder = "/raid/data/mdjilani/lgv_remote"
+        adversarial_folder = "/home/mdjilani/dataset/lgv_remote"
         os.makedirs(adversarial_folder, exist_ok=True)
         for im_idx, image_tensor in enumerate(adv_images_LGV[correct_batch_indices, :, :, :]):
             image_np = image_tensor.permute(1, 2, 0).cpu().numpy()
