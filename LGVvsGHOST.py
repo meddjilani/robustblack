@@ -11,7 +11,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 from utils_robustblack import DataLoader, set_random_seed
-
+from copy import deepcopy
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -52,13 +52,24 @@ if __name__ == '__main__':
 
         target_model = load_model('Peng2023Robust', dataset='imagenet', threat_model='Linf').to(device)
 
+        # Iterate through the files in the directory
         for i, filename in enumerate(os.listdir(args.lgv_models + str(args.seed) + 'lgv_models_robustPeng2023Robust')):
-            if filename[-3:] == ".pt":
-                target_model.load_state_dict(torch.load(
-                    os.path.join(args.lgv_models + str(args.seed) + 'lgv_models_robustPeng2023Robust', filename),
-                    map_location=device)["state_dict"])
-                target_model.eval()
-                list_targets.append(target_model)
+            if filename.endswith(".pt"):  # Check for .pt files
+                # Create a new instance of the model for each file
+                new_model = deepcopy(target_model)  # Create a deep copy of the base model
+
+                # Load the state dictionary into the new model
+                model_path = os.path.join(args.lgv_models + str(args.seed) + 'lgv_models_robustPeng2023Robust', filename)
+                state_dict = torch.load(model_path, map_location=device)["state_dict"]
+                new_model.load_state_dict(state_dict)
+
+                # Set the model to evaluation mode
+                new_model.eval()
+
+                # Append the new model to the list
+                list_targets.append(new_model)
+
+
     elif args.attack == 'GHOST':
 
         target_model = load_model_ghost('Peng2023Robust', dataset='imagenet', threat_model='Linf').to(device)
