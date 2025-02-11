@@ -18,8 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--attack', default='LGV', help='LGV or GHOST')
     parser.add_argument('--lgv_models', type=str, default= '/raid/data/mdjilani/')
-    parser.add_argument("--"
-                        "", type=str, default='mps', help="GPU ID: 0,1")
+    parser.add_argument("--gpu", type=str, default='mps', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--start', default=0, type=int)
     parser.add_argument('--end', default=10, type=int)
