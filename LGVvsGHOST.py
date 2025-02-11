@@ -13,6 +13,15 @@ sys.path.append(parent_dir)
 from utils_robustblack import DataLoader, set_random_seed
 from copy import deepcopy
 
+
+def rem_prefix(state_dict):
+    new_state_dict = state_dict.copy()
+    for k,v in state_dict.items():
+        new_state_dict[k[7:]] = v
+        del new_state_dict[k]
+    return new_state_dict
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=8)
@@ -61,7 +70,7 @@ if __name__ == '__main__':
                 # Load the state dictionary into the new model
                 model_path = os.path.join(args.lgv_models, filename)
                 state_dict = torch.load(model_path, map_location=device)["state_dict"]
-                new_model.load_state_dict(state_dict)
+                new_model.load_state_dict(rem_prefix(state_dict))
 
                 # Set the model to evaluation mode
                 new_model.eval()
