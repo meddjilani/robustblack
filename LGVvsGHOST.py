@@ -18,7 +18,8 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--attack', default='LGV', help='LGV or GHOST')
     parser.add_argument('--lgv_models', type=str, default= '/raid/data/mdjilani/')
-    parser.add_argument("--gpu", type=str, default='mps', help="GPU ID: 0,1")
+    parser.add_argument("--"
+                        "", type=str, default='mps', help="GPU ID: 0,1")
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--start', default=0, type=int)
     parser.add_argument('--end', default=10, type=int)
@@ -53,13 +54,13 @@ if __name__ == '__main__':
         target_model = load_model('Peng2023Robust', dataset='imagenet', threat_model='Linf').to(device)
 
         # Iterate through the files in the directory
-        for i, filename in enumerate(os.listdir(args.lgv_models + str(args.seed) + 'lgv_models_robustPeng2023Robust')):
+        for i, filename in enumerate(os.listdir(args.lgv_models)):
             if filename.endswith(".pt"):  # Check for .pt files
                 # Create a new instance of the model for each file
                 new_model = deepcopy(target_model)  # Create a deep copy of the base model
 
                 # Load the state dictionary into the new model
-                model_path = os.path.join(args.lgv_models + str(args.seed) + 'lgv_models_robustPeng2023Robust', filename)
+                model_path = os.path.join(args.lgv_models, filename)
                 state_dict = torch.load(model_path, map_location=device)["state_dict"]
                 new_model.load_state_dict(state_dict)
 
