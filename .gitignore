@@ -1,3 +1,7 @@
+#ids images
+*_ids.txt
+!imagenet_test_image_ids.txt
+
 #ignore test local files
 *test*
 
