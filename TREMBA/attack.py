@@ -237,7 +237,7 @@ for i, (images, labels) in enumerate(dataloader):
         image_np = image_np * 255
         image_np = image_np.astype(np.uint8)
         adv_path = os.path.join(adversarial_folder,
-                                f"{i}_{labels}_{correct}_{args.seed}_{args.generator_name[:15]}_{args.model_name}.png")
+                                f"{state['epsilon']}_{i}_{labels}_{correct}_{args.seed}_{args.generator_name[:15]}_{args.model_name}.png")
         adv_png = Image.fromarray(image_np)
         adv_png.save(adv_path)
 
