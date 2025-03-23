@@ -1,11 +1,10 @@
-my_list=( "Wong2020Fast" "Engstrom2019Robustness" )
-
+my_list=( "Salman2020Do_R18" "Salman2020Do_R50" "Salman2020Do_50_2" "Singh2023Revisiting_ViT-S-ConvStem" "Liu2023Comprehensive_ConvNeXt-B" "Liu2023Comprehensive_Swin-B" "Liu2023Comprehensive_ConvNeXt-L" "Bai2024MixedNUTS" "Liu2023Comprehensive_Swin-L" )
 test_path="/raid/data/mdjilani/dataset/val"
 
 for seed in 42; do
   for target in "${my_list[@]}"; do
 
-    python ADMIX.py --eps 0.0156862745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 16
+    python ADMIX.py --eps 0.03125 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 16
 
   done
 done
