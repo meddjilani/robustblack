@@ -1,5 +1,5 @@
 my_list=( "Standard_R50"  "Salman2020Do_R50" )
-test_path="/raid/data/mdjilani/dataset/val"
+test_path="/home/mdjilani/datasets/val"
 
 for seed in 42; do
   for target in "${my_list[@]}"; do
