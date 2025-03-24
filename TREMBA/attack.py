@@ -211,7 +211,7 @@ for i, (images, labels) in enumerate(dataloader):
                 loss = hinge_loss(logits, labels)
                 grad = torch.autograd.grad(loss, latents)[0]
                 latents = latents - state['white_box_lr'] * grad
-
+    
             with torch.no_grad():
                 success, adv = EmbedBA(F, encoder, decoder, images[0], labels, state, latents.view(-1))
 
