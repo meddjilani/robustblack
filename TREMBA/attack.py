@@ -80,6 +80,7 @@ parser.add_argument('--save_prefix', default=None, help='override save_prefix in
 parser.add_argument('--model_name', default='Wong2020Fast')
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--epsilon', default=None, type=float)
+parser.add_argument('--num_iters', default=None, type=int)
 parser.add_argument('--comet_proj', default='RQ3', type=str)
 parser.add_argument('--data_path', default='/raid/data/mdjilani/dataset/Sample_1000')
 parser.add_argument('--generator_name',
@@ -113,6 +114,8 @@ if args.save_path is not None:
     state['save_path'] = args.save_path
 if args.epsilon is not None:
     state['epsilon'] = args.epsilon
+if args.num_iters is not None:
+    state['num_iters'] = args.num_iters
 state['helpers_path'] = args.helpers_path
 
 new_state = state.copy()
