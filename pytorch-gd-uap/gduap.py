@@ -147,12 +147,12 @@ def get_rate_of_saturation(delta, xi):
     """
     return np.sum(np.equal(np.abs(delta), xi)) / np.size(delta)
 
-def gd_universal_adversarial_perturbation(model, model_name, data_loader, train_type, device, patience_interval, id, eps=8/255,disable_tqdm=False):
+def gd_universal_adversarial_perturbation(model, model_name, data_loader, train_type, device, patience_interval, id, max_iter, eps=8/255,disable_tqdm=False):
     """
     Returns a universal adversarial perturbation tensor
     """
 
-    max_iter = 10000
+    # max_iter = 10000
     size = 224
 
     sat_threshold = 0.00001

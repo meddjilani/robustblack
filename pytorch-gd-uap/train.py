@@ -36,6 +36,7 @@ def main():
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--data_path', type=str, default= '../dataset/Imagenet/Sample_1000')
     parser.add_argument('--helpers_path', type=str, default= '/home/mdjilani/robustblack/utils_robustblack')
+    parser.add_argument('--max_iter', type=int,default=10000)
     parser.add_argument("-robust", action='store_true', help="use robust models")
 
 
@@ -72,7 +73,7 @@ def main():
 
 
     # create a universal adversarial perturbation
-    uap = gd_universal_adversarial_perturbation(model, args.model, target_data_loader, args.prior_type, device, args.patience_interval, args.id, eps=args.eps,disable_tqdm=True)
+    uap = gd_universal_adversarial_perturbation(model, args.model, target_data_loader, args.prior_type, device, args.patience_interval, args.id, args.max_iter, eps=args.eps,disable_tqdm=True)
 
     # perform a final evaluation
     target_model = load_model(args.target, dataset = 'imagenet', threat_model = 'Linf')
