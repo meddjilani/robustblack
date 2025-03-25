@@ -1,14 +1,24 @@
-my_list=("Standard_R50" "Liu2023Comprehensive_ConvNeXt-L" "Salman2020Do_R18" "Bai2024MixedNUTS" "Liu2023Comprehensive_Swin-L")
+my_list=( "Standard_R50"  "Salman2020Do_R50" )
 
-test_path="/home/mdjilani/datasets/val"
-helpers_path="/home/mdjilani/robustblack/utils_robustblack"
-
+test_path="/raid/data/mdjilani/dataset/val"
 
 for seed in 42; do
   for target in "${my_list[@]}"; do
 
-    cd LGV
-    python LGV-MI-FGSM.py --eps 0.0156862745 --comet_proj RQ2 --seed $seed --target $target --data_path $test_path --helpers_path $helpers_path --gpu cuda --model Peng2023Robust --batch_size 32 --lgv_models "/home/mdjilani/datasets/lgv_models/_FullTrain_${seed}_lgv_models_Peng2023Robust_128" -robust
+    python MI-FGSM.py --steps 50 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python SGM-MI-FGSM.py --steps 50 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python DI-FGSM.py --steps 50 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python TI-FGSM.py --steps 50 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python VMI-FGSM.py --steps 50 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    python VNI-FGSM.py --steps 50 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
+
+    cd pytorch-gd-uap
+    python train.py --max_iter 50000 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model wide_resnet50_2 --batch_size 64
 
     cd ..
   done
