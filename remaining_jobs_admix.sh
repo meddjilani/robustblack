@@ -6,7 +6,7 @@ test_path="/home/mdjilani/datasets/val"
 for seed in 42; do
   for target in "${my_list[@]}"; do
 
-    python ADMIX.py --steps 50 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 16
+    python ADMIX.py --steps 20 --eps 0.062745 --seed $seed --target $target --data_path $test_path --gpu cuda --model resnet50 --batch_size 16
 
   done
 done
